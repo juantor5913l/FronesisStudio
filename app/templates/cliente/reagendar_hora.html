@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <title>Fronesis Studio | Reagendar hora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fuentes e íconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../../static/css/footer.css">
+
+  <style>
+    :root {
+      --color-bg: #0b0b0b;
+      --color-text: #f1f1f1;
+      --color-accent: #007bff;
+      --color-accent-2: #6f00ff;
+      --color-accent-3: #00c2ff;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 1rem;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 520px;
+      border-radius: 18px;
+      box-shadow: 0 0 25px rgba(0, 123, 255, 0.25);
+      padding: 30px 25px;
+      text-align: center;
+      margin-top: 40px;
+      animation: fadeInUp 0.8s ease-in-out;
+    }
+
+    header img {
+      width: 90px;
+      transition: transform 0.4s ease;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    }
+
+    header img:hover { transform: scale(1.1); }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .titulo-section {
+      text-align: center;
+      padding: 10px 10px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .titulo-section h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .titulo-section h5 {
+      color: #c5cae9;
+      font-weight: 400;
+      margin: 0;
+      font-size: clamp(0.9rem, 1.5vw, 1rem);
+    }
+
+    .horas-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      justify-items: center;
+      margin-top: 20px;
+    }
+
+    /* 🔹 BOTONES ESTILO “CHECKBOX-BOTÓN” */
+    .hora-btn {
+      width: 100%;
+      padding: 12px 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+                  linear-gradient(90deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3)) border-box;
+      border: 2px solid transparent;
+      color: #e3f2fd;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .hora-btn:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(135deg, rgba(25,25,25,1), rgba(40,40,40,1)) padding-box,
+                  linear-gradient(90deg, var(--color-accent-3), var(--color-accent-2), var(--color-accent)) border-box;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .hora-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+    }
+
+    .no-horas {
+      color: #e57373;
+      font-weight: 500;
+      margin-top: 20px;
+    }
+
+    .volver {
+      color: #80d8ff;
+      text-decoration: none;
+      margin-top: 15px;
+      display: inline-block;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .volver:hover { color: #fff; }
+
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 0.85rem;
+      padding-top: 25px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 25px;
+    }
+
+    footer .social-icons a {
+      color: #9fa8da;
+      margin: 0 8px;
+      transition: 0.3s;
+      font-size: 1.2rem;
+    }
+
+    footer .social-icons a:hover { color: #ffffff; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .container { width: 90%; padding: 20px; }
+      .hora-btn { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Logo de Fronesis Studio">
+    </header>
+     <h2>FRONESIS STUDIO</h2>
+    <div class="titulo-section">
+      <h3 id="titulo-cita">{{nombre_dia}}</h3>  
+      <h5>{{fecha_legible}}</h5>
+    </div>
+      <hr class="divider">
+    <div class="hora-section">
+      {% if horas_disponibles %}
+        <form method="POST">
+          <h3>Seleccione una hora</h3>
+          <h3>Duración: 45min</h3>
+          <div class="horas-container">
+            {% for hora in horas_disponibles %}
+              <button type="submit" name="hora" value="{{ hora }}" class="hora-btn hora-item">{{ hora }}</button>
+            {% endfor %}
+          </div>
+        </form>
+      {% else %}
+        <p class="no-horas">❌ No hay horas disponibles para este día.</p>
+        <a href="{{ url_for('cliente.calendario_view') }}" class="volver">← Volver al calendario</a>
+      {% endif %}
+    </div>
+
+<footer class="footer">
+      <h3>Redes sociales</h3>
+      <div class="social-icons">
+        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Fronesis Studio | Barbería Premium
+      </div>
+    </footer>
+  
+  </div>
+
+  <script>
+    // Convertir formato de hora a 12h visualmente
+    const horaBtns = document.querySelectorAll('.hora-item');
+    horaBtns.forEach(btn => {
+      let hora = btn.textContent.trim();
+      const [h, m] = hora.split(':');
+      let hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12 || 12;
+      btn.textContent = `${hour}:${m} ${ampm}`;
+    });
+
+    // Ocultar horas pasadas si la fecha es hoy
+    const ahora = new Date();
+    const fechaTexto = "{{ fecha }}";
+    const fechaSeleccionada = new Date(fechaTexto + 'T00:00:00');
+
+    if (fechaSeleccionada.toDateString() === ahora.toDateString()) {
+      horaBtns.forEach(btn => {
+        const match = btn.textContent.match(/(\d+):(\d+)\s?(am|pm)/i);
+        if (match) {
+          let [_, h, m, ampm] = match;
+          h = parseInt(h);
+          if (ampm.toLowerCase() === 'pm' && h !== 12) h += 12;
+          if (ampm.toLowerCase() === 'am' && h === 12) h = 0;
+
+          const horaCita = new Date(fechaSeleccionada);
+          horaCita.setHours(h, m, 0, 0);
+
+          if (horaCita < ahora) btn.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

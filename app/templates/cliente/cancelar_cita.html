@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../../static/css/footer.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>Cancelar cita | FronesisStudio</title>
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 20px;
+  }
+
+  .card {
+    background: rgba(20, 20, 20, 0.85);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    width: 400px;
+    max-width: 100%;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    backdrop-filter: blur(8px);
+  }
+
+  .card header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card header img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .card header h1 {
+    font-size: 20px;
+    color: #fff;
+    margin: 0;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+
+  .card header h4 {
+    margin: 0;
+    color: #ccc;
+    font-weight: 500;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #fff;
+  }
+.icon {
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+  font-size: 16px;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+}
+
+@keyframes tornasol-azul {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+  .item i {
+    font-size: 16px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .cancel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cancel-section label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+  }
+
+  .cancel-section textarea {
+    min-height: 90px;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(30,30,30,0.7);
+    color: #fff;
+    resize: vertical;
+  }
+
+  .cancel-section textarea::placeholder {
+    color: #aaa;
+  }
+
+  .btn-cancel {
+    border: 2px solid transparent;
+    background: 
+      linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+      linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) border-box;
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .btn-cancel:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(0,194,255,0.6);
+  }
+
+  /* --- MODAL --- */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: rgba(15,15,15,0.95);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,194,255,0.3);
+  }
+
+  .modal-content i {
+    font-size: 40px;
+    color: #ffb300;
+    margin-bottom: 10px;
+  }
+
+  .modal-content h3 {
+    color: #fff;
+    margin-bottom: 10px;
+  }
+
+  .modal-content p {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+  }
+
+  .btn-confirmar {
+    border: 2px solid transparent;
+    background: 
+      linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+      linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) border-box;
+    color: #fff;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .btn-confirmar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0,194,255,0.6);
+  }
+
+  .btn-cancelar-modal {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .btn-cancelar-modal:hover {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  @media (max-width: 480px) {
+    .card {
+      padding: 20px;
+      width: 100%;
+    }
+    .card header h1 { font-size: 18px; }
+    .item { font-size: 13px; }
+    .cancel-section label, .cancel-section textarea { font-size: 13px; }
+    .btn-cancel { font-size: 14px; padding: 10px; }
+  }
+</style>
+</head>
+
+<body>
+
+<main>
+  <div class="card">
+    <header>
+      <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Logo Fronesis">
+      <h1>Reserva Estudio FRONESIS</h1>
+      <h4>Hola {{ cita.nombre }}</h4>
+      <h1>Cancelar Cita</h1>
+    </header>
+
+    <div class="info">
+      <div class="item"><i class="icon fa-solid fa-calendar"></i> {{ cita.fecha.strftime('%A, %d de %B de %Y') }}</div>
+      <div class="item"><i class="icon fa-solid fa-clock"></i> {{ cita.hora_am_pm }}</div>
+      <div class="item"><i class="icon fa-solid fa-location-dot"></i>Carerra 98A #131-05 Aures</div>
+    </div>
+
+    <div class="cancel-section">
+      <label for="motivo">Motivo de la cancelación</label>
+      <textarea id="motivo" name="motivo" placeholder="Escribe aquí tu motivo..."></textarea>
+      <button class="btn-cancel" onclick="abrirModal()">Cancelar cita</button>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <h3>¿Seguro que deseas cancelar tu cita?</h3>
+    <p>Esta acción no se puede deshacer. Tu espacio será liberado para otros clientes.</p>
+    <div class="modal-buttons">
+      <form method="POST" action="{{ url_for('cliente.confirmacion_cancelar', token=token) }}">
+        <button type="submit" class="btn-confirmar">Sí, cancelar</button>
+      </form>
+      <button class="btn-cancelar-modal" onclick="cerrarModal()">No</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('confirmModal');
+  function abrirModal() { modal.style.display = 'flex'; }
+  function cerrarModal() { modal.style.display = 'none'; }
+  window.onclick = function(event) { if (event.target == modal) cerrarModal(); }
+</script>
+<footer class="footer">
+  <div class="footer-section">
+    <h3>Redes sociales</h3>
+    <div class="social-icons">
+      <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+      <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+    <div class="footer-bottom">
+      © 2025 Fronesis Studio | Barbería Premium
+    </div>
+  </div>
+</footer>
+
+  
+
+</body>
+</html>

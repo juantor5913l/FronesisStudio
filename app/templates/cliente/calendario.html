@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="stylesheet" href="../../static/css/footer.css">
+  <title>FRONESIS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales-all.global.min.js"></script>
+
+  <!-- Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- GENERAL --- */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #0d0d0d;
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    /* --- LOGO --- */
+    header img {
+      width: 100px;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+      margin-top: 15px;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 15px 0 30px 0;
+    }
+
+    /* --- TEXTOS --- */
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #cccccc;
+      line-height: 1.6;
+      margin: 0 0 25px 0;
+    }
+
+    .horario {
+      font-size: 0.95rem;
+      color: #e0e0e0;
+      margin-top: 10px;
+    }
+
+    .horario strong {
+      display: block;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 5px;
+      font-size: 1.05rem;
+    }
+
+    /* --- SECCIÓN CALENDARIO --- */
+    h3 {
+      font-weight: 600;
+      color: #ffffff;
+      margin: 30px 0 15px 0;
+      font-size: 1.1rem;
+    }
+
+    .month-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .arrow {
+      cursor: pointer;
+      color: #007bff;
+      font-size: 1.4rem;
+      user-select: none;
+      transition: transform 0.2s ease;
+    }
+
+    .arrow:hover {
+      transform: scale(1.2);
+    }
+
+    .arrow.disabled {
+      color: #555;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* --- FULLCALENDAR --- */
+    #calendar {
+      border: none !important;
+      background: transparent !important;
+    }
+
+    .fc-theme-standard td,
+    .fc-theme-standard th,
+    .fc-scrollgrid {
+      border: none !important;
+      background: transparent !important;
+    }
+
+    .fc-toolbar-title {
+      color: #fff !important;
+      font-family: 'Poppins', sans-serif !important;
+      font-weight: 500;
+      font-size: 1.1rem !important;
+    }
+
+    .fc-daygrid-day-number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 42px;
+      height: 42px;
+      margin: 4px auto;
+      border-radius: 50%;
+      font-weight: 400;
+      color: #f5f5f5;
+      transition: 0.2s ease all;
+    }
+
+    .fc-daygrid-day-events {
+      display: none !important;
+    }
+
+    .fc-day-today .fc-daygrid-day-number {
+      border: 2px solid #007bff;
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .fc-daygrid-day:not(.unavailable):hover .fc-daygrid-day-number {
+      background-color: rgba(0, 123, 255, 0.2);
+      cursor: pointer;
+    }
+
+    .selected-day .fc-daygrid-day-number {
+      background-color: rgba(0, 123, 255, 0.3);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .fc-col-header-cell-cushion {
+      color: #999;
+      font-size: 0.8rem;
+      text-transform: capitalize;
+    }
+
+    .fc-daygrid-day.unavailable .fc-daygrid-day-number {
+      color: rgba(255, 255, 255, 0.15) !important;
+      pointer-events: none !important;
+    }
+
+    .divider {
+      border: 0;
+      height: 1px;
+      width: 100%;
+      margin: 25px 0;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255,255,255,0.3),
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.3),
+        transparent
+      );
+      background-size: 200% 100%;
+      animation: shine 3s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(255,255,255,0.3);
+    }
+
+    @keyframes shine {
+      0% { background-position: 200% 0; }
+      50% { background-position: 0 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* --- FLASH MODAL --- */
+    .flash-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .flash-content {
+      background-color: #111;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px 30px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      animation: slideUp 0.4s ease;
+      max-width: 340px;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+    }
+
+    .flash-content.warning {
+      border: 1px solid #ffcc00;
+      color: #ffcc00;
+    }
+
+    .flash-content.success {
+      border: 1px solid #28a745;
+      color: #28a745;
+    }
+
+    .flash-btn {
+      margin-top: 20px;
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .flash-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .close-btn:hover {
+      color: #ffcc00;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Logo Fronesis">
+    </header>
+    <hr class="divider">
+
+    <h2>FRONESIS STUDIO</h2>
+    <p>Reserva tu cita en nuestro estudio premium, <br>Servicio exclusivo y personalizado para cada cliente.</p>
+
+    <hr class="divider">
+    <div class="horario">
+      <strong>Horario de atención</strong>
+      Lunes a Domingo de 7:00 a.m. - 8:00 p.m.
+    </div>
+
+    <h3>Selecciona una fecha y hora</h3>
+    <div class="month-container">
+      <span id="prevMonth" class="arrow">&#10094;</span>
+      <span id="monthTitle"></span>
+      <span id="nextMonth" class="arrow">&#10095;</span>
+    </div>
+
+    <div id="calendar"></div>
+
+    <form id="fechaForm" method="POST" action="{{ url_for('cliente.seleccionar_fecha') }}">
+      <input type="hidden" name="fecha" id="fechaInput">
+    </form>
+
+<footer>
+  <h3>Redes sociales</h3>
+  <div class="social-icons">
+    <a href="https://www.tiktok.com/@fronesis_studio" target="_blank">
+      <i class="fa-brands fa-tiktok"></i>
+    </a>
+    <a href="https://www.instagram.com/fronesis_studio/" target="_blank">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+  </div>
+  <div class="footer-bottom">
+    © 2025 Fronesis Studio | Barbería Premium
+  </div>
+</footer>
+
+  </div>
+
+  <!-- 🔹 FLASH MESSAGE POPUP -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="flashModal" class="flash-modal">
+        {% for category, message in messages %}
+          <div class="flash-content {{ category }}">
+            <span class="close-btn" onclick="cerrarModal()">&times;</span>
+            <p>{{ message }}</p>
+            <button class="flash-btn" onclick="redirigir()">OK</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+  const res = await fetch('/cliente/dias_restringidos');
+  const fechasRestringidas = await res.json();
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const limite = new Date(hoy);
+  limite.setDate(limite.getDate() + 30);
+  limite.setHours(23, 59, 59, 999);
+
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    locale: 'es',
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    headerToolbar: false,
+
+    datesSet: function (info) {
+      const prevBtn = document.getElementById('prevMonth');
+      const nextBtn = document.getElementById('nextMonth');
+      const monthTitle = document.getElementById('monthTitle');
+
+      const viewDate = calendar.getDate();
+      const currentMonth = viewDate.getMonth();
+      const currentYear = viewDate.getFullYear();
+      const startMonth = hoy.getMonth();
+      const startYear = hoy.getFullYear();
+
+      const nextMonthAllowed = (startMonth + 1) % 12;
+      const nextYearAllowed = startMonth === 11 ? startYear + 1 : startYear;
+
+      monthTitle.textContent = info.view.title.toLowerCase();
+
+      prevBtn.classList.toggle('disabled', currentMonth === startMonth && currentYear === startYear);
+      nextBtn.classList.toggle('disabled', currentMonth === nextMonthAllowed && currentYear === nextYearAllowed);
+    },
+
+    dateClick: function (info) {
+      const fecha = new Date(info.date.getFullYear(), info.date.getMonth(), info.date.getDate());
+      fecha.setHours(0, 0, 0, 0);
+
+      if (fecha < hoy) return;
+      if (fecha > limite) return;
+
+      const fechaStr = fecha.toLocaleDateString('en-CA');
+      if (fechasRestringidas.includes(fechaStr)) return;
+
+      document.getElementById('fechaInput').value = fechaStr;
+      document.getElementById('fechaForm').submit();
+    },
+
+    dayCellDidMount: function (arg) {
+      const cellDate = new Date(arg.date.getFullYear(), arg.date.getMonth(), arg.date.getDate());
+      cellDate.setHours(0, 0, 0, 0);
+
+      if (cellDate < hoy || cellDate > limite) {
+        arg.el.classList.add('unavailable');
+        arg.el.querySelector('.fc-daygrid-day-number').style.color = 'rgba(255,255,255,0.15)';
+        return;
+      }
+
+      const fechaISO = cellDate.toLocaleDateString('en-CA');
+      if (fechasRestringidas.includes(fechaISO)) {
+        arg.el.classList.add('unavailable');
+        arg.el.querySelector('.fc-daygrid-day-number').style.color = 'rgba(255,255,255,0.15)';
+      }
+    },
+  });
+
+  calendar.render();
+
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    if (!document.getElementById('prevMonth').classList.contains('disabled')) calendar.prev();
+  });
+
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    if (!document.getElementById('nextMonth').classList.contains('disabled')) calendar.next();
+  });
+});
+
+// 🔹 Cerrar modal
+function cerrarModal() {
+  const modal = document.getElementById('flashModal');
+  if (modal) {
+    modal.style.opacity = '0';
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+// 🔹 Redirigir al calendario
+function redirigir() {
+  window.location.href = "{{ url_for('cliente.calendario_view') }}";
+}
+</script>
+</body>
+</html>
+  

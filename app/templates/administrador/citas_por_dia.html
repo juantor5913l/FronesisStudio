@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Citas del {{ fecha }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../static/css/footer.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #0d0d0d;
+    color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    width: 95%;
+    max-width: 480px;
+    border-radius: 18px;
+    padding: 30px 25px;
+    text-align: center;
+    margin-top: 40px;
+    animation: fadeInUp 0.8s ease-in-out;
+  }
+/* --- Dropdown --- */
+.dropdown {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+}
+
+/* 🔹 Botón con borde tornasol azul fijo */
+.dropdown button {
+  background-color: #0d0d0d;
+  color: #ffffff; /* Texto blanco fijo */
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* 🔹 Capa del borde tornasol (solo borde, no afecta texto) */
+.dropdown button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 2px;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff, #007bff);
+  background-size: 300% 300%;
+  animation: tornasolAzul 4s linear infinite;
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  z-index: -1;
+}
+
+/* 🔹 Fondo negro sólido dentro (para que no se meta el gradiente) */
+.dropdown button::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 6px;
+  background-color: #0d0d0d;
+  z-index: -1;
+}
+
+/* 🔹 Animación del gradiente */
+@keyframes tornasolAzul {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* --- Dropdown content --- */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  margin-top: 6px;
+  background-color: #0d0d0d;
+  border-radius: 8px;
+  min-width: 200px;
+  box-shadow: 0 2px 10px rgba(25, 0, 255, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-content button,
+.dropdown-content a {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: #ffffff;
+  cursor: pointer;
+  display: block;
+}
+
+.dropdown-content button:hover,
+.dropdown-content a:hover {
+  background-color: rgba(255, 0, 0, 0.96);
+}
+
+.dropdown.show .dropdown-content {
+  display: block;
+}
+.dropdown button a,
+.dropdown-link {
+  color: #ffffff !important; /* blanco puro */
+  text-decoration: none; /* sin subrayado */
+  display: inline-block;
+}
+
+/* Evita que cambie de color si el link fue visitado */
+.dropdown button a:visited {
+  color: #ffffff !important;
+}
+
+/* Y por si acaso en hover */
+.dropdown button a:hover {
+  color: #ffffff !important;
+}
+
+  /* --- Estilo general --- */
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: #ffffff;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+ .hora {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espacio entre el emoji y la hora */
+}
+
+.hora .emoji {
+  font-size: 16px; /* Ajusta tamaño si quieres más pequeño o grande */
+  margin-right: 4px;
+}
+
+.hora-item {
+  display: inline; /* Mantiene la hora en línea con el emoji */
+  font-weight: 700;
+  color: #2a7de1;
+}
+
+  .fecha {
+    color: #ffffff;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .cita {
+    position: relative; /* para posicionar el ícono dentro */
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 15px 0 30px 0;
+    padding: 16px 45px 16px 16px; /* deja espacio a la derecha para el ícono */
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+  }
+
+  .cita:hover {
+    transform: scale(1.02);
+  }
+
+  .btn-whatsapp {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    text-decoration: none;
+    background-color: #25d366;
+    color: white;
+    font-size: 1.4rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  .btn-whatsapp:hover {
+    background-color: #1ebe5a;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+
+  .hora {
+    font-weight: 700;
+    color: #2a7de1;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  .hora span {
+    margin-right: 6px;
+    font-size: 16px;
+  }
+
+  .dato {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffffff;
+    margin: 4px 0;
+    line-height: 1.4;
+  }
+
+  .icon {
+    width: 22px;
+    text-align: center;
+    margin-right: 6px;
+  }
+
+  .no-citas {
+    color: #606770;
+    font-size: 15px;
+    margin-top: 20px;
+  }
+.btn-volver {
+      margin-top: 25px;
+      border: 2px solid transparent;
+      background:
+        linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+        linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) border-box;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-volver:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(0,194,255,0.6);
+    }
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <!-- 🔽 Dropdown -->
+    <div class="dropdown">
+      <button>
+        <a href="{{ url_for('administrador.seleccionar_hora', fecha_str=fecha) }}" class="dropdown-link">⚙ Opciones</a>
+      </button>
+    </div>
+        <br><br>
+    <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Logo" width="60" style="margin-bottom: 10px;">
+    <h2>📅 Citas agendadas</h2>
+    <div class="fecha">{{ fecha_formateada }}</div>
+
+    {% if citas %}
+      {% for c in citas %}
+<div class="cita">
+  <div class="hora"><span class="emoji">🕐</span><span class="hora-item">{{ c.hora.strftime('%H:%M') }}</span></div>
+  <div class="dato"><span class="icon">👤</span>{{ c.nombre }} {{ c.apellido }}</div>
+  <div class="dato"><span class="icon">📧</span>{{ c.correo_electronico }}</div>
+
+  {% if c.telefono %}
+    <a href="https://wa.me/57{{ c.telefono|replace(' ', '')|replace('+', '') }}" 
+       target="_blank" 
+       class="btn-whatsapp">
+       <i class="bi bi-whatsapp"></i>
+    </a>
+  {% endif %}
+</div>
+
+      {% endfor %}
+    {% else %}
+      <div class="no-citas">😴 No hay citas agendadas para este día.</div>
+    {% endif %}
+<br><br>
+    <button class="btn-volver" onclick="window.location.href='/administrador/calendario'">Volver al inicio</button>
+  <br><br><br>
+    <footer>
+      <h3>Redes sociales</h3>
+      <div class="social-icons">
+        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Fronesis Studio | Barbería Premium
+      </div>
+    </footer>
+  
+  </div>
+
+  <script>
+    const horaBtns = document.querySelectorAll('.hora-item');
+    horaBtns.forEach(btn => {
+      let hora = btn.textContent.trim();
+      const [h, m] = hora.split(':');
+      let hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      hour = hour % 12 || 12;
+      btn.textContent = `${hour}:${m} ${ampm}`;
+    });
+    // 📅 Restringir día directamente
+    document.getElementById('btnRestringirDia').addEventListener('click', async () => {
+      const fecha = "{{ fecha }}";
+      if (!confirm(`¿Seguro que deseas restringir el día ${fecha}?`)) return;
+
+      const res = await fetch(`/administrador/restringir_dia_directo/${fecha}`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      alert(data.msg);
+      if (data.ok) location.reload();
+    });
+  </script>
+</body>
+</html>

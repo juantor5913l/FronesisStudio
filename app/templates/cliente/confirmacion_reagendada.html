@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cita Reagendada | Fronesis Studio</title>
+  <link rel="stylesheet" href="../../static/css/footer.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ======== ESTILO FRONESIS TORNASOL ======== */
+    :root {
+      --bg-color: #0f1115;
+      --card-bg: #1b1e24;
+      --text-color: #f5f5f5;
+      --muted: #9da3af;
+      --tornasol: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98));
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      border: 1.5px solid transparent;
+      border-radius: 18px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+      max-width: 420px;
+      width: 90%;
+      margin-top: 60px;
+      padding: 35px 30px;
+      text-align: center;
+    }
+.icon {
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+  font-size: 16px;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+}
+
+@keyframes tornasol-azul {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      background: var(--tornasol);
+      -webkit-background-clip: text;
+      background-clip: text;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .nombre {
+      text-transform: capitalize;
+
+    }
+
+    .mensaje {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      border: 1.5px solid transparent;
+      border-radius: 14px;
+      padding: 25px;
+      text-align: left;
+    }
+
+    .card h3 {
+      text-align: center;
+      background: var(--tornasol);
+      background-clip: text;
+      margin-bottom: 18px;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    .card .estudio {
+      font-weight: 800;
+      font-size: 20px;
+      background: var(--tornasol);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .info p {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 14px;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+.icon {
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+  font-size: 16px;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+}
+
+@keyframes tornasol-azul {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+    .social-icons a {
+      color: #f5f5f5;
+      margin: 0 6px;
+      font-size: 18px;
+      transition: 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      background: var(--tornasol);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .check-icon i {
+  cursor: pointer;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  
+}
+
+.check-icon {
+  font-size: 42px;
+  border-image-slice: 1;
+  border-radius: 50%;
+  width: 75px;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98));
+}
+.check-icon i:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 6px rgba(0, 194, 255, 0.6));
+}
+
+        /* Botón volver tornasol */
+    .btn-volver {
+      margin-top: 25px;
+      border: 2px solid transparent;
+      background:
+        linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+        linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) border-box;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-volver:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(0,194,255,0.6);
+    }
+
+    /* --- ANIMACIÓN TORNASOL --- */
+    @keyframes shine {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    h2, .nombre, .card h3, .estudio, .icon i, .social-icons a:hover {
+      background-size: 200% 200%;
+      animation: shine 6s linear infinite;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px;
+        margin-top: 40px;
+      }
+      .check-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 32px;
+      }
+      h2 {
+        font-size: 18px;
+      }
+        /* --- TEXTOS --- */
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+      .info p {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  </header>
+  <div class="container">
+    <div class="check-icon"><i class="fa-solid fa-check"></i></div>
+    <h2>¡Tu cita ha sido reagendada exitosamente!</h2>
+    <p class="mensaje">Estos son los nuevos detalles de tu cita:</p>
+
+    <div class="card">
+      <h3>Reserva Estudio<br><span class="estudio">FRONESIS</span></h3>
+
+      <div class="info">
+        <p><i class="icon fa-solid fa-user"></i> {{ cita.nombre }} {{ cita.apellido }}</p>
+        <p><i class="icon fa-solid fa-calendar"></i> {{ cita.fecha.strftime('%A, %d de %B de %Y') }}</p>
+        <p><i class="icon fa-solid fa-clock"></i> {{ cita.hora_am_pm}}</p>
+        <p><i class="icon fa-solid fa-phone"></i> {{ cita.telefono }}</p>
+        <p><i class="icon fa-solid fa-envelope"></i> {{ cita.correo_electronico }}</p>
+        <p><i class="icon fa-solid fa-location-dot"></i>Carerra 98A #131-05 Aures</p>
+      </div>
+    </div>
+
+      <button class="btn-volver" onclick="window.location.href='/'">Volver al inicio</button>
+<footer>
+      <h3>Redes sociales</h3>
+      <div class="social-icons">
+        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Fronesis Studio | Barbería Premium
+      </div>
+    </footer>
+  
+  </div>
+</body>
+</html>

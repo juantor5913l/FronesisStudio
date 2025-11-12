@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <title>FRONESIS | Calendario</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/locales-all.global.min.js"></script>
+  <link rel="stylesheet" href="../../static/css/footer.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* --- GENERAL --- */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #0d0d0d;
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    /* --- LOGO --- */
+    header img {
+      width: 100px;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+      margin-top: 15px;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 15px 0 30px 0;
+    }
+
+    /* --- TEXTOS --- */
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #cccccc;
+      line-height: 1.6;
+      margin: 0 0 25px 0;
+    }
+
+    .horario {
+      font-size: 0.95rem;
+      color: #e0e0e0;
+      margin-top: 10px;
+    }
+
+    .horario strong {
+      display: block;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 5px;
+      font-size: 1.05rem;
+    }
+
+    /* --- SECCIÓN CALENDARIO --- */
+    h3 {
+      font-weight: 600;
+      color: #ffffff;
+      margin: 30px 0 15px 0;
+      font-size: 1.1rem;
+    }
+
+    .month-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .arrow {
+      cursor: pointer;
+      color: #007bff;
+      font-size: 1.4rem;
+      user-select: none;
+      transition: transform 0.2s ease;
+    }
+
+    .arrow:hover {
+      transform: scale(1.2);
+    }
+
+    .arrow.disabled {
+      color: #555;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* --- FULLCALENDAR --- */
+    #calendar {
+      border: none !important;
+      background: transparent !important;
+    }
+
+    .fc-theme-standard td,
+    .fc-theme-standard th,
+    .fc-scrollgrid {
+      border: none !important;
+      background: transparent !important;
+    }
+
+    .fc-toolbar-title {
+      color: #fff !important;
+      font-family: 'Poppins', sans-serif !important;
+      font-weight: 500;
+      font-size: 1.1rem !important;
+    }
+
+    .fc-daygrid-day-number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 42px;
+      height: 42px;
+      margin: 4px auto;
+      border-radius: 50%;
+      font-weight: 400;
+      color: #f5f5f5;
+      transition: 0.2s ease all;
+    }
+
+    .fc-daygrid-day-events {
+      display: none !important;
+    }
+
+    .fc-day-today .fc-daygrid-day-number {
+      border: 2px solid #007bff;
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .fc-daygrid-day:not(.unavailable):hover .fc-daygrid-day-number {
+      background-color: rgba(0, 123, 255, 0.2);
+      cursor: pointer;
+    }
+
+    .selected-day .fc-daygrid-day-number {
+      background-color: rgba(0, 123, 255, 0.3);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .fc-col-header-cell-cushion {
+      color: #999;
+      font-size: 0.8rem;
+      text-transform: capitalize;
+    }
+
+    .fc-daygrid-day.unavailable .fc-daygrid-day-number {
+      color: rgba(255, 255, 255, 0.15);
+      pointer-events: none;
+    }
+    
+
+    
+  </style>  
+</head>
+<body>
+
+  <div class="container">
+    <h1>Panel de Administración</h1>
+    <p>Visualiza las <strong>citas agendadas</strong> y gestiona los <strong>días restringidos</strong>.</p>
+
+    <div class="month-container">
+      <span id="prevMonth" class="arrow">&#10094;</span>
+      <span id="monthTitle"></span>
+      <span id="nextMonth" class="arrow">&#10095;</span>
+    </div>
+
+    <div id="calendar"></div>
+
+    
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const monthTitle = document.getElementById('monthTitle');
+    const prevBtn = document.getElementById('prevMonth');
+    const nextBtn = document.getElementById('nextMonth');
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    let restringidosSet = new Set();
+
+    // 🔹 Inicializa el calendario
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'es',
+      height: 'auto',
+      headerToolbar: false,
+
+      datesSet: function(info) {
+        monthTitle.textContent = info.view.title.toLowerCase();
+        repaintCells();
+      },
+
+      dayCellDidMount: function(arg) {
+        const f = arg.date.toISOString().split('T')[0];
+        const hoyISO = hoy.toISOString().split('T')[0];
+
+        if (restringidosSet.has(f) || f < hoyISO) {
+          arg.el.classList.add('unavailable');
+        } else if (f === hoyISO) {
+          arg.el.classList.add('today');
+        }
+      },
+
+      dateClick: function(info) {
+        const f = info.dateStr;
+        window.location.href = `/administrador/horas/${f}`;
+      }
+    });
+
+    calendar.render();
+
+    // 🔹 Cargar días restringidos
+    fetch('/administrador/dias_restringidos')
+      .then(r => r.json())
+      .then(data => {
+        restringidosSet = new Set(data.map(d => d.fecha || d));
+        repaintCells();
+      })
+      .catch(err => console.error('Error cargando días restringidos:', err));
+
+    // 🔹 Controles de mes
+    prevBtn.addEventListener('click', () => calendar.prev());
+    nextBtn.addEventListener('click', () => calendar.next());
+
+    // 🔹 Reaplicar clases de restricción
+    function repaintCells() {
+      document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
+        const f = cell.getAttribute('data-date');
+        const hoyISO = hoy.toISOString().split('T')[0];
+
+        if (restringidosSet.has(f) || f < hoyISO) {
+          cell.classList.add('unavailable');
+        } else {
+          cell.classList.remove('unavailable');
+        }
+      });
+    }
+  });
+</script>
+<footer>
+      <h3>Redes sociales</h3>
+      <div class="social-icons">
+        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+      <div class="footer-bottom">
+        © 2025 Fronesis Studio | Barbería Premium
+      </div>
+    </footer>
+  
+  </div>
+
+
+</body>
+</html>
