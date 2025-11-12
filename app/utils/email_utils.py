@@ -169,14 +169,15 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 
     mail.send(msg)
 
-
+from flask import current_app
 import threading
 
 def enviar_correo_async(**kwargs):
     """Envía correo en un hilo con contexto de Flask"""
     def enviar_con_contexto(**kwargs):
-        with app.app_context():  # 🔹 necesario para Flask-Mail en hilos
-            enviar_correo_con_invitacion(**kwargs)
+      with current_app.app_context():
+        from .email_utils import enviar_correo_con_invitacion
+          enviar_correo_con_invitacion(**kwargs)
 
     thread = threading.Thread(target=enviar_con_contexto, kwargs=kwargs)
     thread.start()
