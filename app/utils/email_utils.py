@@ -1,13 +1,30 @@
-from flask_mail import Message
+import locale
 from datetime import datetime
 import pytz
 from email.mime.image import MIMEImage
+from flask_mail import Message
 from app import mail
-import locale
 from app.utils.security_utils import encriptar_id
 
-locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+# --- 🔹 Configurar locale seguro ---
+try:
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, '')  # fallback al locale por defecto
 
+# Diccionario de meses en español como backup
+MESES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+    5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+    9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+}
+
+def formatear_fecha(fecha_dt):
+    """Formatea fecha a 'DD de Mes de YYYY' en español sin depender del locale"""
+    dia = fecha_dt.day
+    mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
+    año = fecha_dt.year
+    return f"{dia} de {mes} de {año}"
 
 # --- FUNCIÓN PARA FORMATEAR FECHA Y HORA (12h) ---
 def formatear_hora_12h(fecha, hora):
@@ -19,14 +36,14 @@ def formatear_hora_12h(fecha, hora):
     sufijo = "AM" if hora_24 < 12 else "PM"
     hora_12 = hora_24 % 12 or 12
     hora_formateada = f"{hora_12}:{minuto:02d} {sufijo}"
-    fecha_formateada = inicio.strftime("%d de %B de %Y").capitalize()
+    fecha_formateada = formatear_fecha(inicio).capitalize()
     return hora_formateada, fecha_formateada
-
 
 # --- FUNCIÓN PRINCIPAL DE ENVÍO ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
     if fecha.count('-') == 2 and ':' in hora:
         hora, fecha = formatear_hora_12h(fecha, hora)
+
 
     # --- CONFIGURACIÓN SEGÚN EL TIPO DE CITA ---
     if tipo == 'nueva':
