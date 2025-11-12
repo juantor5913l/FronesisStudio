@@ -204,12 +204,17 @@ def datos_cita():
         db.session.add(nueva_cita)
         db.session.commit()
 
-        enviar_correo_async(id_cita=nueva_cita.id,
-                                     destinatario=correo_electronico,
-                                     nombre=nombre,
-                                     fecha=fecha,
-                                     hora=hora_completa,
-                                     tipo='nueva')
+        enviar_correo_async(
+            destinatario=nueva_cita.correo_electronico,
+            nombre=nueva_cita.nombre,
+            fecha=str(nueva_cita.fecha),
+            hora=str(nueva_cita.hora),
+            tipo='nueva',
+            id_cita=nueva_cita.id
+        )
+        # Después de crear la cita
+
+
 
         fecha_formateada = formatear_fecha(fecha_obj)
         session.pop('fecha_cita', None)
