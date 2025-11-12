@@ -203,7 +203,7 @@ def datos_cita():
                                  fecha=fecha, hora=hora_completa, estado='activa')
         db.session.add(nueva_cita)
         db.session.commit()
-
+        print(f"Cita creada: {nueva_cita.id} para {nueva_cita.nombre} el {nueva_cita.fecha} a las {nueva_cita.hora}")
         enviar_correo_async(
             destinatario=nueva_cita.correo_electronico,
             nombre=nueva_cita.nombre,
@@ -213,7 +213,7 @@ def datos_cita():
             id_cita=nueva_cita.id
         )
         # Después de crear la cita
-
+        print(f"Correo de confirmación enviado a {nueva_cita.correo_electronico}.")
 
 
         fecha_formateada = formatear_fecha(fecha_obj)
