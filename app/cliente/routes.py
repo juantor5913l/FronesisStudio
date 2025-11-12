@@ -1,16 +1,40 @@
 import app
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session, flash
 from datetime import datetime, timedelta
-import locale
 
 from app.models import HoraRestringida
 from . import cliente_blueprint
 from app.config import Config
 from app.utils.email_utils import enviar_correo_con_invitacion
-from app.utils.security_utils import encriptar_id, desencriptar_id  # 🔒 Nuevo import
+from app.utils.security_utils import encriptar_id, desencriptar_id
 
-# 🔹 Configurar idioma español
-locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')
+# -----------------------------------------------------------
+# 🔹 FUNCIONES PARA FORMATEAR FECHAS EN ESPAÑOL
+# -----------------------------------------------------------
+MESES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+    5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+    9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+}
+
+DIAS_ES = {
+    "Monday": "lunes",
+    "Tuesday": "martes",
+    "Wednesday": "miércoles",
+    "Thursday": "jueves",
+    "Friday": "viernes",
+    "Saturday": "sábado",
+    "Sunday": "domingo"
+}
+
+def formatear_fecha(fecha_dt):
+    dia = fecha_dt.day
+    mes = MESES_ES[fecha_dt.month]
+    año = fecha_dt.year
+    return f"{dia} de {mes} de {año}"
+
+def nombre_dia_func(fecha_dt):
+    return DIAS_ES[fecha_dt.strftime("%A")]
 
 # -----------------------------------------------------------
 # 🔹 CALENDARIO PRINCIPAL
@@ -19,9 +43,8 @@ locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')
 def calendario_view():
     return render_template('cliente/calendario.html')
 
-
 # -----------------------------------------------------------
-# 🔹 DÍAS RESTRINGIDOS (opcional)
+# 🔹 DÍAS RESTRINGIDOS
 # -----------------------------------------------------------
 @cliente_blueprint.route('/dias_restringidos')
 def dias_restringidos():
@@ -30,14 +53,12 @@ def dias_restringidos():
     fechas = [d.fecha.strftime('%Y-%m-%d') for d in dias]
     return jsonify(fechas)
 
-
 # -----------------------------------------------------------
 # 🔹 SELECCIONAR FECHA DE NUEVA CITA
 # -----------------------------------------------------------
 @cliente_blueprint.route('/seleccionar_fecha', methods=['POST'])
 def seleccionar_fecha():
     fecha_str = request.form.get('fecha')
-
     if not fecha_str:
         flash('Debe seleccionar una fecha válida.', 'warning')
         return redirect(url_for('cliente.calendario_view'))
@@ -56,7 +77,6 @@ def seleccionar_fecha():
 
     session['fecha_cita'] = fecha_str
     return redirect(url_for('cliente.seleccionar_hora'))
-
 
 # -----------------------------------------------------------
 # 🔹 HORAS DISPONIBLES
@@ -79,14 +99,12 @@ def horas_disponibles():
     libres = [h for h in todas if h not in ocupadas]
     return jsonify(libres)
 
-
 # -----------------------------------------------------------
 # 🔹 SELECCIONAR HORA
 # -----------------------------------------------------------
 @cliente_blueprint.route('/horas', methods=['GET', 'POST'])
 def seleccionar_hora():
     from app import db, models
-    from datetime import datetime
     from app.models import HoraRestringida
 
     if request.method == 'POST':
@@ -118,9 +136,7 @@ def seleccionar_hora():
     citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha).all()
     horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_existentes]
 
-    bloqueos = db.session.query(HoraRestringida.hora).filter(
-        HoraRestringida.fecha == fecha
-    ).all()
+    bloqueos = db.session.query(HoraRestringida.hora).filter(HoraRestringida.fecha == fecha).all()
     horas_bloqueadas = [h.hora.strftime('%H:%M') for h in bloqueos]
 
     todas_las_horas = [
@@ -129,35 +145,25 @@ def seleccionar_hora():
         '18:00', '18:45'
     ]
 
-    horas_disponibles = [
-        h for h in todas_las_horas
-        if h not in horas_ocupadas and h not in horas_bloqueadas
-    ]
+    horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
     ahora = datetime.now()
     if fecha == ahora.date():
-        horas_disponibles = [
-            h for h in horas_disponibles
-            if datetime.strptime(h, "%H:%M").time() > ahora.time()
-        ]
+        horas_disponibles = [h for h in horas_disponibles if datetime.strptime(h, "%H:%M").time() > ahora.time()]
 
-    fecha_formateada = fecha.strftime("%#d de %B de %Y")
-    nombre_dia = fecha.strftime("%A")
+    fecha_formateada = formatear_fecha(fecha)
+    nombre_dia_str = nombre_dia_func(fecha)
 
-    return render_template(
-        'cliente/horas.html',
-        fecha=fecha_formateada,
-        horas_disponibles=horas_disponibles,
-        nombre_dia=nombre_dia
-    )
-
+    return render_template('cliente/horas.html',
+                           fecha=fecha_formateada,
+                           horas_disponibles=horas_disponibles,
+                           nombre_dia=nombre_dia_str)
 
 # -----------------------------------------------------------
 # 🔹 DATOS DE CITA
 # -----------------------------------------------------------
 @cliente_blueprint.route('/datos', methods=['GET', 'POST'])
 def datos_cita():
-    from datetime import datetime
     from app import db, models
 
     if request.method == 'POST':
@@ -167,7 +173,6 @@ def datos_cita():
         telefono = request.form.get('telefono')
         fecha = session.get('fecha_cita')
         hora = session.get('hora_cita')
-        horaAm = session.get('hora_cita')
 
         if not telefono or not telefono.isdigit() or len(telefono) != 10:
             return redirect(url_for('cliente.calendario_view'))
@@ -180,102 +185,78 @@ def datos_cita():
             hora_completa = f"{hora}:00" if len(hora) == 5 else hora
             fecha_obj = datetime.strptime(fecha, "%Y-%m-%d")
             hora_obj = datetime.strptime(hora_completa, "%H:%M:%S").time()
-        except ValueError as e:
+        except ValueError:
             return redirect(url_for('cliente.calendario_view'))
 
         cita_existente = models.Cita.query.filter_by(fecha=fecha, hora=hora_completa).first()
         if cita_existente:
             return redirect(url_for('cliente.calendario_view'))
 
-        cita_pendiente = models.Cita.query.filter_by(
-            correo_electronico=correo_electronico,
-            estado='activa'
-        ).first()
+        cita_pendiente = models.Cita.query.filter_by(correo_electronico=correo_electronico, estado='activa').first()
         if cita_pendiente:
             flash('⚠️ Ya tienes una cita pendiente.', 'warning')
             return redirect(url_for('cliente.calendario_view', error='pendiente'))
 
-        nueva_cita = models.Cita(
-            nombre=nombre,
-            apellido=apellido,
-            correo_electronico=correo_electronico,
-            telefono=telefono,
-            fecha=fecha,
-            hora=hora_completa,
-            estado='activa'
-        )
+        nueva_cita = models.Cita(nombre=nombre, apellido=apellido,
+                                 correo_electronico=correo_electronico, telefono=telefono,
+                                 fecha=fecha, hora=hora_completa, estado='activa')
         db.session.add(nueva_cita)
         db.session.commit()
-        id_cita = nueva_cita.id
 
-        enviar_correo_con_invitacion(
-            id_cita=id_cita,
-            destinatario=correo_electronico,
-            nombre=nombre,
-            fecha=fecha,
-            hora=hora_completa,
-            tipo='nueva'
-        )
+        enviar_correo_con_invitacion(id_cita=nueva_cita.id,
+                                     destinatario=correo_electronico,
+                                     nombre=nombre,
+                                     fecha=fecha,
+                                     hora=hora_completa,
+                                     tipo='nueva')
 
-        fecha_formateada = fecha_obj.strftime("%#d de %B de %Y")
-
+        fecha_formateada = formatear_fecha(fecha_obj)
         session.pop('fecha_cita', None)
         session.pop('hora_cita', None)
 
-        if horaAm:
-            try:
-                hora_obj = datetime.strptime(horaAm, "%H:%M").time()
-                h = hora_obj.hour
-                m = hora_obj.minute
-                sufijo = "AM" if h < 12 else "PM"
-                h12 = h % 12 or 12
-                hora_am_pm = f"{h12}:{m:02d} {sufijo}"
-            except Exception:
-                hora_am_pm = horaAm
-        else:
-            hora_am_pm = None
+        h = datetime.strptime(hora, "%H:%M").hour
+        m = datetime.strptime(hora, "%H:%M").minute
+        sufijo = "AM" if h < 12 else "PM"
+        h12 = h % 12 or 12
+        hora_am_pm = f"{h12}:{m:02d} {sufijo}"
 
-        return render_template(
-            'cliente/confirmacion.html',
-            nombre=nombre,
-            fecha_formateada=fecha_formateada,
-            hora=hora,
-            hora_am_pm=hora_am_pm
-        )
+        return render_template('cliente/confirmacion.html',
+                               nombre=nombre,
+                               fecha_formateada=fecha_formateada,
+                               hora=hora,
+                               hora_am_pm=hora_am_pm)
 
+    # GET request
     hora = session.get('hora_cita')
     fecha_str = session.get('fecha_cita')
 
     if hora:
-        try:
-            hora_obj = datetime.strptime(hora, "%H:%M").time()
-            h = hora_obj.hour
-            m = hora_obj.minute
-            sufijo = "AM" if h < 12 else "PM"
-            h12 = h % 12 or 12
-            hora_am_pm = f"{h12}:{m:02d} {sufijo}"
-        except Exception:
-            hora_am_pm = hora
+        h = datetime.strptime(hora, "%H:%M").hour
+        m = datetime.strptime(hora, "%H:%M").minute
+        sufijo = "AM" if h < 12 else "PM"
+        h12 = h % 12 or 12
+        hora_am_pm = f"{h12}:{m:02d} {sufijo}"
     else:
         hora_am_pm = None
 
     if fecha_str:
         fecha = datetime.strptime(fecha_str, "%Y-%m-%d")
-        fecha_formateada = fecha.strftime("%#d de %B de %Y")
-        nombre_dia = fecha.strftime("%A")
+        fecha_formateada = formatear_fecha(fecha)
+        nombre_dia_str = nombre_dia_func(fecha)
     else:
         fecha_formateada = ""
-        nombre_dia = ""
+        nombre_dia_str = ""
 
-    return render_template(
-        'cliente/datos.html',
-        hora=hora,
-        hora_am_pm=hora_am_pm,
-        fecha_formateada=fecha_formateada,
-        nombre_dia=nombre_dia
-    )
+    return render_template('cliente/datos.html',
+                           hora=hora,
+                           hora_am_pm=hora_am_pm,
+                           fecha_formateada=fecha_formateada,
+                           nombre_dia=nombre_dia_str)
 
 
+# -----------------------------------------------------------
+# 🔹 REAGENDAR CITA (PASO 1: Seleccionar nueva fecha)
+# -----------------------------------------------------------
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 1: Seleccionar nueva fecha)
 # -----------------------------------------------------------
@@ -286,19 +267,8 @@ def reagendar_fecha(token):
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-    cita = db.session.query(models.Cita).get_or_404(cita_id)
 
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            cita.hora_am_pm = str(cita.hora)
-    else:
-        cita.hora_am_pm = None
+    cita = db.session.query(models.Cita).get_or_404(cita_id)
 
     if request.method == 'POST':
         nueva_fecha_str = request.form.get('fecha')
@@ -320,8 +290,8 @@ def reagendar_fecha(token):
         session['nueva_fecha'] = nueva_fecha_str
         return redirect(url_for('cliente.reagendar_hora', token=token))
 
-    return render_template('cliente/reagendar_fecha.html', cita=cita,token=token)
-
+    fecha_legible = formatear_fecha(cita.fecha)
+    return render_template('cliente/reagendar_fecha.html', cita=cita, fecha_legible=fecha_legible, token=token)
 
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 2: Seleccionar nueva hora)
@@ -333,8 +303,8 @@ def reagendar_hora(token):
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-    cita = db.session.query(models.Cita).get_or_404(cita_id)
 
+    cita = db.session.query(models.Cita).get_or_404(cita_id)
     fecha = session.get('nueva_fecha')
     if not fecha:
         return redirect(url_for('cliente.reagendar_fecha', token=token))
@@ -353,12 +323,11 @@ def reagendar_hora(token):
         session['nueva_hora'] = nueva_hora
         return redirect(url_for('cliente.reagendar_confirmar', token=token))
 
+    from app.models import HoraRestringida
     citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha).all()
     horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_existentes]
 
-    bloqueos = db.session.query(HoraRestringida.hora).filter(
-        HoraRestringida.fecha == fecha
-    ).all()
+    bloqueos = db.session.query(HoraRestringida.hora).filter(HoraRestringida.fecha == fecha).all()
     horas_bloqueadas = [h.hora.strftime('%H:%M') for h in bloqueos]
 
     todas_las_horas = [
@@ -366,34 +335,24 @@ def reagendar_hora(token):
         '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
         '18:00', '18:45'
     ]
-
-    horas_disponibles = [
-        h for h in todas_las_horas
-        if h not in horas_ocupadas and h not in horas_bloqueadas
-    ]
+    horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
     ahora = datetime.now()
     fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
     if fecha_dt.date() == ahora.date():
-        horas_disponibles = [
-            h for h in horas_disponibles
-            if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora
-        ]
+        horas_disponibles = [h for h in horas_disponibles if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora]
 
-    fecha_legible = fecha_dt.strftime("%#d de %B de %Y").capitalize()
-    nombre_dia = fecha_dt.strftime("%A")
+    fecha_legible = formatear_fecha(fecha_dt)
+    nombre_dia_str = nombre_dia_func(fecha_dt)
     hora_agendada_anterior = cita.hora.strftime('%H:%M')
 
-    return render_template(
-        'cliente/reagendar_hora.html',
-        cita=cita,
-        fecha=fecha,
-        fecha_legible=fecha_legible,
-        horas_disponibles=horas_disponibles,
-        nombre_dia=nombre_dia,
-        hora_agendada_anterior=hora_agendada_anterior,
-    )
-
+    return render_template('cliente/reagendar_hora.html',
+                           cita=cita,
+                           fecha=fecha,
+                           fecha_legible=fecha_legible,
+                           horas_disponibles=horas_disponibles,
+                           nombre_dia=nombre_dia_str,
+                           hora_agendada_anterior=hora_agendada_anterior)
 
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 3: Confirmar y guardar)
@@ -405,11 +364,10 @@ def reagendar_confirmar(token):
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-    cita = db.session.query(models.Cita).get_or_404(cita_id)
 
+    cita = db.session.query(models.Cita).get_or_404(cita_id)
     fecha = session.get('nueva_fecha')
     hora = session.get('nueva_hora')
-    cita.estado = "activa"
 
     if not fecha or not hora:
         return redirect(url_for('cliente.reagendar_fecha', token=token))
@@ -417,13 +375,13 @@ def reagendar_confirmar(token):
     if request.method == 'POST':
         nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
         ahora = datetime.now()
-
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
 
     cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
     cita.hora = datetime.strptime(hora, '%H:%M').time()
+    cita.estado = "activa"
     db.session.commit()
 
     enviar_correo_con_invitacion(
@@ -441,44 +399,9 @@ def reagendar_confirmar(token):
     flash('✅ Cita reagendada exitosamente.', 'success')
     return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
 
-
 # -----------------------------------------------------------
-# 🔹 CONFIRMACIÓN DE CITA REAGENDADA
+# 🔹 CANCELAR CITA
 # -----------------------------------------------------------
-@cliente_blueprint.route('/confirmacion_reagendada/<token>')
-def confirmacion_reagendada(token):
-    from app import db, models
-    cita_id = desencriptar_id(token)
-    if not cita_id:
-        flash('Token inválido o expirado.', 'danger')
-        return redirect(url_for('cliente.calendario_view'))
-    cita = db.session.query(models.Cita).get_or_404(cita_id)
-
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            cita.hora_am_pm = str(cita.hora)
-    else:
-        cita.hora_am_pm = None
-
-    fecha_legible = cita.fecha.strftime("%#d de %B de %Y")
-
-    return render_template(
-        'cliente/confirmacion_reagendada.html',
-        cita=cita,
-        fecha_legible=fecha_legible
-    )
-
-
-# -----------------------------------------------------------
-# 🔹 ELIMINA Y MUESTRA CONFIRMACIÓN
-# -----------------------------------------------------------
-
 @cliente_blueprint.route('/cancelar_cita/<token>', methods=['GET'])
 def cancelar_cita(token):
     from app import db, models
@@ -488,25 +411,12 @@ def cancelar_cita(token):
         return redirect(url_for('cliente.calendario_view'))
 
     cita = db.session.query(models.Cita).get_or_404(cita_id)
-
-    # ✅ Convertir la hora tipo datetime.time a formato 12h con AM/PM manual
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            cita.hora_am_pm = str(cita.hora)
-    else:
-        cita.hora_am_pm = None
-
     token = encriptar_id(cita.id)
     return render_template('cliente/cancelar_cita.html', cita=cita, token=token)
 
-
-
+# -----------------------------------------------------------
+# 🔹 CONFIRMAR CANCELACIÓN
+# -----------------------------------------------------------
 @cliente_blueprint.route('/confirmacion_cancelar/<token>', methods=['POST'])
 def confirmacion_cancelar(token):
     from app import db, models
@@ -537,24 +447,9 @@ def confirmacion_cancelar(token):
         db.session.rollback()
         flash(f'⚠️ Ocurrió un error al cancelar la cita: {str(e)}', 'danger')
 
-    # ✅ Convertir la hora tipo datetime.time a formato 12h con AM/PM manual
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            hora_am_pm = str(cita.hora)
-    else:
-        hora_am_pm = None
-
-    # Renderiza la página de confirmación
     return render_template(
         'cliente/confirmacion_cancelar.html',
-        hora_am_pm=hora_am_pm,
-        nombre=cita.nombre,
-        hora=cita.hora,
-        fecha_formateada=cita.fecha.strftime('%A, %d de %B de %Y')
+        nombre=nombre,
+        hora=hora,
+        fecha_formateada=formatear_fecha(cita.fecha)
     )
