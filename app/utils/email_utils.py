@@ -1,6 +1,8 @@
 from flask_mail import Message
+from flask import current_app
 from datetime import datetime
 import pytz
+import threading
 from email.mime.image import MIMEImage
 from app import mail
 from app.utils.security_utils import encriptar_id
@@ -12,12 +14,14 @@ MESES_ES = {
     9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
 }
 
+
 # --- FUNCIÓN PARA FORMATEAR FECHA EN ESPAÑOL ---
 def formatear_fecha(fecha_dt):
     dia = fecha_dt.day
     mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
     año = fecha_dt.year
     return f"{dia} de {mes} de {año}"
+
 
 # --- FUNCIÓN PARA FORMATEAR HORA EN 12H ---
 def formatear_hora_12h(fecha, hora):
@@ -31,6 +35,7 @@ def formatear_hora_12h(fecha, hora):
     hora_formateada = f"{hora_12}:{minuto:02d} {sufijo}"
     fecha_formateada = formatear_fecha(inicio).capitalize()
     return hora_formateada, fecha_formateada
+
 
 # --- FUNCIÓN PRINCIPAL DE ENVÍO ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
@@ -56,9 +61,11 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
     elif tipo == 'cancelada_admin':
         asunto = "⚠️ Tu cita ha sido cancelada por el barbero"
         titulo = "Cancelación por parte del estudio"
-        descripcion = ("Lamentamos informarte que tu cita ha sido cancelada, "
-                       "ya que al barbero se le presentó un imprevisto para ese día. "
-                       "Puedes reagendar en otro horario disponible.")
+        descripcion = (
+            "Lamentamos informarte que tu cita ha sido cancelada, "
+            "ya que al barbero se le presentó un imprevisto para ese día. "
+            "Puedes reagendar en otro horario disponible."
+        )
         gradiente = "linear-gradient(90deg,#ff8c00,#ff4b2b,#c0392b)"
     elif tipo == 'recordatorio':
         asunto = "⏰ Recordatorio de tu cita - Fronesis Studio"
@@ -70,23 +77,19 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         titulo = "Detalles de tu cita"
         descripcion = "Detalles de tu cita."
         gradiente = "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
-    
+
     # --- BLOQUE DE ENLACES ESTILO FRONESIS ---
-    base_url = "http://192.168.20.28:5000"
+    base_url = "https://fronesisstudio.onrender.com"
     enlaces_html = ""
     if tipo != "cancelada":
         token = encriptar_id(id_cita)
         enlaces_html = f"""
         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;">
         <div style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
-
-          <!-- BOTÓN REAGENDAR -->
           <a href='{base_url}/cliente/reagendar/{token}'
              style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;letter-spacing:0.3px;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#007bff,#6f00ff,#00c2ff);position:relative;z-index:1;">
               <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🔁 Reagendar</span>
           </a>
-
-          <!-- BOTÓN CANCELAR -->
           <a href='{base_url}/cliente/cancelar_cita/{token}'
              style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;letter-spacing:0.3px;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);position:relative;z-index:1;">
               <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🚫 Cancelar</span>
@@ -101,22 +104,6 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{asunto}</title>
-  <style>
-    a, a:link, a:visited, a span, p span, td span {{
-      color: #ffffff !important;
-      text-decoration: none !important;
-    }}
-    span, p, div, td {{
-      color: #ffffff !important;
-    }}
-    @media (max-width:480px) {{
-      .boton-responsive {{
-        display:block !important;
-        width:100% !important;
-        margin:8px 0 !important;
-      }}
-    }}
-  </style>
 </head>
 <body style="margin:0;padding:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,rgba(15,15,15,0.95),rgba(25,25,25,0.98));color:#ffffff !important;text-align:center;">
   <div style="margin:40px auto;max-width:420px;width:92%;border-radius:18px;background:rgba(255,255,255,0.05);box-shadow:0 4px 25px rgba(0,0,0,0.5);padding:30px 22px;">
@@ -139,7 +126,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
       <p style="font-size:14px;margin:10px 0;">👤 {nombre}</p>
       <p style="font-size:14px;margin:10px 0;">⏱ {hora}</p>
       <p style="font-size:14px;margin:10px 0;">📅 {fecha}</p>
-      <p style="font-size:14px;margin:10px 0;">📍 Carerra 98A #131-05 Aures</p>
+      <p style="font-size:14px;margin:10px 0;">📍 Carrera 98A #131-05 Aures</p>
       <br>
       {enlaces_html}
     </div>
@@ -169,16 +156,13 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 
     mail.send(msg)
 
-from flask import current_app
-import threading
 
+# --- ENVÍO ASÍNCRONO CON CONTEXTO FLASK ---
 def enviar_correo_async(**kwargs):
-    """Envía correo en un hilo con contexto de Flask"""
+    """Envía correos en un hilo, dentro de un contexto Flask seguro."""
     def enviar_con_contexto(**kwargs):
-      with current_app.app_context():
-        from .email_utils import enviar_correo_con_invitacion
-          print("Enviando correo en segundo plano...")
-          enviar_correo_con_invitacion(**kwargs)
-          print("Correo enviado.")
+        with current_app.app_context():
+            enviar_correo_con_invitacion(**kwargs)
+
     thread = threading.Thread(target=enviar_con_contexto, kwargs=kwargs)
     thread.start()
