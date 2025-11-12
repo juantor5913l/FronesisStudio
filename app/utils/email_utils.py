@@ -177,7 +177,8 @@ def enviar_correo_async(**kwargs):
     def enviar_con_contexto(**kwargs):
       with current_app.app_context():
         from .email_utils import enviar_correo_con_invitacion
+          print("Enviando correo en segundo plano...")
           enviar_correo_con_invitacion(**kwargs)
-
+          print("Correo enviado.")
     thread = threading.Thread(target=enviar_con_contexto, kwargs=kwargs)
     thread.start()
