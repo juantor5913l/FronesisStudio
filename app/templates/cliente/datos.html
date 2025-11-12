@@ -18,22 +18,8 @@
       min-height: 100vh;
       padding: 20px;
     }
-
-    /* ===== ENCABEZADO ===== */
-    header {
-      text-align: center;
-      margin-bottom: 15px;
-      animation: fadeIn 1.2s ease;
-    }
-
-    header img {
-      width: 100px;
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-    }
-    
-
-
-    /* ===== LÍNEA DIFUMINADA ===== */
+    header { text-align: center; margin-bottom: 15px; animation: fadeIn 1.2s ease; }
+    header img { width: 100px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)); }
     .divider {
       width: 90%;
       height: 1px;
@@ -42,69 +28,25 @@
       margin: 15px 0 25px 0;
       opacity: 0.7;
     }
-
-    /* ===== TÍTULOS ===== */
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-      animation: fadeIn 1.5s ease;
+    .header { text-align: center; margin-bottom: 25px; animation: fadeIn 1.5s ease; }
+    .header h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #ffffff; letter-spacing: 1px; margin-bottom: 12px; }
+    .info { margin-bottom: 25px; }
+    .info .item { align-items: center; justify-content: center; margin: 6px 0; font-size: 15px; color: #fff; }
+    .icon {
+      width: 25px; text-align: center; margin-right: 8px; font-size: 16px;
+      background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: tornasol-azul 4s ease infinite;
     }
-
-
-    .header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 1px;
+    @keyframes tornasol-azul {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-    h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      color: #ffffff;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-    }
-
-    /* ===== INFORMACIÓN DE CITA ===== */
-    .info {
-      margin-bottom: 25px;
-    }
-
-    .info .item {
-      align-items: center;
-      justify-content: center;
-      margin: 6px 0;
-      font-size: 15px;
-      color: #fff;
-    }
-
-.icon {
-  width: 25px;
-  text-align: center;
-  margin-right: 8px;
-  font-size: 16px;
-  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: tornasol-azul 4s ease infinite;
-}
-
-@keyframes tornasol-azul {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-
-    /* ===== FORMULARIO ===== */
     form {
       width: 100%;
       max-width: 400px;
@@ -114,22 +56,8 @@
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.08);
       animation: fadeIn 1.2s ease;
     }
-
-    form h3 {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #fff;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #fff;
-      font-size: 14px;
-    }
-
+    form h3 { text-align: center; font-size: 18px; margin-bottom: 20px; color: #fff; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; color: #fff; font-size: 14px; }
     input {
       width: 90%;
       padding: 10px 14px;
@@ -141,14 +69,11 @@
       margin-bottom: 14px;
       transition: border 0.2s, box-shadow 0.2s;
     }
-
     input:focus {
       outline: none;
       border-color: #fff;
       box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
     }
-
-    /* ===== TELÉFONO ===== */
     .telefono {
       display: flex;
       align-items: center;
@@ -157,14 +82,12 @@
       overflow: hidden;
       margin-bottom: 14px;
     }
-
     .bandera {
       background: #111;
       padding: 0 12px;
       font-size: 15px;
       border-right: 1px solid #555;
     }
-
     .telefono input {
       flex: 1;
       border: none;
@@ -173,39 +96,6 @@
       padding: 10px;
       font-size: 15px;
       margin-bottom: 0;
-    }
-
-    /* ===== BOTONES ===== */
-    .btn-principal {
-      width: 100%;
-      background-color: #fff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-principal:hover {
-      background-color: #e0e0e0;
-      transform: scale(1.02);
-    }
-
-    .btn-secundario {
-      width: 100%;
-      background-color: transparent;
-      border: 1px solid #fff;
-      color: #fff;
-      border-radius: 8px;
-      padding: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s ease;
     }
     .hora-btn {
       width: 100%;
@@ -221,7 +111,6 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
     .hora-btn:hover {
       transform: translateY(-4px);
       background: linear-gradient(135deg, rgba(25,25,25,1), rgba(40,40,40,1)) padding-box,
@@ -229,40 +118,16 @@
       color: #fff;
       box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
     }
-
-    .btn-secundario:hover {
-      background-color: #fff;
-      color: #000;
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0px 1000px #000 inset !important;
+      -webkit-text-fill-color: #fff !important;
+      transition: background-color 9999s ease-in-out 0s;
+      caret-color: #fff !important;
     }
-
-    /* ===== ANIMACIÓN ===== */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 480px) {
-      form {
-        padding: 18px;
-        max-width: 90%;
-      }
-
-      .header h1 { font-size: 24px; }
-      input, .telefono input { font-size: 14px; }
-      .btn-principal, .btn-secundario { font-size: 14px; }
-    }
-    /* ===== Evitar fondo blanco del autocompletado ===== */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px #000 inset !important; /* 👈 Fondo negro */
-  -webkit-text-fill-color: #fff !important; /* 👈 Texto blanco */
-  transition: background-color 9999s ease-in-out 0s;
-  caret-color: #fff !important; /* 👈 Cursor blanco */
-}
-
   </style>
 </head>
 
@@ -276,7 +141,6 @@ input:-webkit-autofill:active {
   <div class="header">
     <h2>FRONESIS STUDIO</h2>
     <h1>Confirma tu cita</h1>
-    
   </div>
 
   <div class="info">
@@ -293,8 +157,10 @@ input:-webkit-autofill:active {
       <span>Carerra 98A #131-05 Aures</span>
     </div>
   </div>
+
   <hr class="divider">
-  <form method="POST" class="form">
+
+  <form id="form-cita" method="POST" class="form">
     <h3>Introduce tus datos</h3>
 
     <label>Nombre *</label>
@@ -304,32 +170,55 @@ input:-webkit-autofill:active {
     <input type="text" name="apellido" placeholder="Apellido" required>
 
     <label>Correo electrónico *</label>
-    <input type="email" name="correo_electronico" placeholder="ejemplo@correo.com" required>
+    <input type="email" id="correo" name="correo_electronico" placeholder="ejemplo@correo.com" required>
 
     <label>Teléfono *</label>
     <div class="telefono">
       <span class="bandera">🇨🇴 +57</span>
-      <input type="tel" name="telefono" placeholder="300 000 0000" pattern="[0-9]{10}" maxlength="10" required>
+      <input type="tel" id="telefono" name="telefono" placeholder="300 000 0000" maxlength="10" required>
     </div>
 
-    <button 
-      type="submit" 
-      class="hora-btn" 
-      onclick="this.disabled=true; this.innerText='Procesando...'; this.form.submit();">
+    <button type="submit" class="hora-btn" id="btn-confirmar">
       Confirmar cita
     </button>
-
   </form>
-  </body>
-  <footer>
-      <h3 style="text-align: center;">Redes sociales</h3>
-      <div class="social-icons">
-        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
-        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
-      </div>
-      <div class="footer-bottom">
-        © 2025 Fronesis Studio | Barbería Premium
-      </div>
-    </footer>
-  
+
+  <script>
+    document.getElementById("form-cita").addEventListener("submit", function(event) {
+      const correo = document.getElementById("correo").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      
+      // Validar correo
+      if (!correo.includes("@") || !correo.includes(".")) {
+        event.preventDefault();
+        alert("⚠️ Por favor, ingresa un correo electrónico válido con '@' y dominio.");
+        return;
+      }
+
+      // Validar teléfono (solo números y exactamente 10 dígitos)
+      const telefonoRegex = /^[0-9]{10}$/;
+      if (!telefonoRegex.test(telefono)) {
+        event.preventDefault();
+        alert("⚠️ El número de teléfono debe tener exactamente 10 dígitos numéricos.");
+        return;
+      }
+
+      // Si pasa todas las validaciones, muestra el spinner
+      const btn = document.getElementById("btn-confirmar");
+      btn.disabled = true;
+      btn.innerText = "Procesando...";
+    });
+  </script>
+</body>
+
+<footer>
+  <h3 style="text-align: center;">Redes sociales</h3>
+  <div class="social-icons">
+    <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+    <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+  </div>
+  <div class="footer-bottom">
+    © 2025 Fronesis Studio | Barbería Premium
+  </div>
+</footer>
 </html>

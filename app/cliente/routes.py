@@ -170,22 +170,22 @@ def datos_cita():
         horaAm = session.get('hora_cita')
 
         if not telefono or not telefono.isdigit() or len(telefono) != 10:
-            return "Error: el teléfono debe tener 10 dígitos."
+            return redirect(url_for('cliente.calendario_view'))
         if not correo_electronico or '@' not in correo_electronico or '.' not in correo_electronico:
-            return "Error: el correo electrónico no es válido."
+            return redirect(url_for('cliente.calendario_view'))
         if not fecha or not hora:
-            return "Error: falta la fecha u hora de la cita."
+            return redirect(url_for('cliente.calendario_view'))
 
         try:
             hora_completa = f"{hora}:00" if len(hora) == 5 else hora
             fecha_obj = datetime.strptime(fecha, "%Y-%m-%d")
             hora_obj = datetime.strptime(hora_completa, "%H:%M:%S").time()
         except ValueError as e:
-            return "Error: formato de fecha u hora inválido."
+            return redirect(url_for('cliente.calendario_view'))
 
         cita_existente = models.Cita.query.filter_by(fecha=fecha, hora=hora_completa).first()
         if cita_existente:
-            return "Error: Ya existe una cita agendada para ese día y hora."
+            return redirect(url_for('cliente.calendario_view'))
 
         cita_pendiente = models.Cita.query.filter_by(
             correo_electronico=correo_electronico,
