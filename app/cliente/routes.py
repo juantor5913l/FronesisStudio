@@ -5,13 +5,9 @@ from datetime import datetime, timedelta
 from app.models import HoraRestringida
 from . import cliente_blueprint
 from app.config import Config
-from app.utils.email_utils import enviar_correo_con_invitacion
+from app.utils.email_utils import enviar_correo_con_invitacion, enviar_correo_async
 from app.utils.security_utils import encriptar_id, desencriptar_id
-import threading
 
-def enviar_correo_async(**kwargs):
-    thread = threading.Thread(target=enviar_correo_con_invitacion, kwargs=kwargs)
-    thread.start()
 
 # -----------------------------------------------------------
 # 🔹 FUNCIONES PARA FORMATEAR FECHAS EN ESPAÑOL

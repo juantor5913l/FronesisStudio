@@ -168,3 +168,10 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         )
 
     mail.send(msg)
+
+
+import threading
+
+def enviar_correo_async(**kwargs):
+    thread = threading.Thread(target=enviar_correo_con_invitacion, kwargs=kwargs)
+    thread.start()
