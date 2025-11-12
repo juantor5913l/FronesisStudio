@@ -7,6 +7,11 @@ from . import cliente_blueprint
 from app.config import Config
 from app.utils.email_utils import enviar_correo_con_invitacion
 from app.utils.security_utils import encriptar_id, desencriptar_id
+import threading
+
+def enviar_correo_async(**kwargs):
+    thread = threading.Thread(target=enviar_correo_con_invitacion, kwargs=kwargs)
+    thread.start()
 
 # -----------------------------------------------------------
 # 🔹 FUNCIONES PARA FORMATEAR FECHAS EN ESPAÑOL
@@ -203,7 +208,7 @@ def datos_cita():
         db.session.add(nueva_cita)
         db.session.commit()
 
-        enviar_correo_con_invitacion(id_cita=nueva_cita.id,
+        enviar_correo_async(id_cita=nueva_cita.id,
                                      destinatario=correo_electronico,
                                      nombre=nombre,
                                      fecha=fecha,
@@ -384,7 +389,7 @@ def reagendar_confirmar(token):
     cita.estado = "activa"
     db.session.commit()
 
-    enviar_correo_con_invitacion(
+    enviar_correo_async(
         id_cita=cita.id,
         destinatario=cita.correo_electronico,
         nombre=cita.nombre,
@@ -434,7 +439,7 @@ def confirmacion_cancelar(token):
     try:
         db.session.delete(cita)
         db.session.commit()
-        enviar_correo_con_invitacion(
+        enviar_correo_async(
             id_cita=cita_id,
             destinatario=destinatario,
             nombre=nombre,
