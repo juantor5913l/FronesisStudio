@@ -2,94 +2,153 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Fronesis Studio | Restringir horas o día</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Fuentes y estilos -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../../static/css/footer.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Cita cancelada | Fronesis Studio</title>
 
   <style>
-    :root {
-      --color-bg: #0b0b0b;
-      --color-text: #f1f1f1;
-      --color-accent: #007bff;
-      --color-accent-2: #6f00ff;
-      --color-accent-3: #00c2ff;
-    }
-
     body {
-      margin: 0;
       font-family: 'Poppins', sans-serif;
-      background-color: var(--color-bg);
-      color: var(--color-text);
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 1rem;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(10px);
-      width: 100%;
-      max-width: 520px;
-      border-radius: 18px;
-      box-shadow: 0 0 25px rgba(0, 123, 255, 0.25);
-      padding: 30px 20px;
+      background: rgba(20, 20, 20, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+      max-width: 420px;
+      width: 90%;
+      margin-top: 60px;
+      padding: 35px 25px;
       text-align: center;
-      animation: fadeInUp 0.8s ease-in-out;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      backdrop-filter: blur(8px);
     }
 
-    header img {
-      width: 90px;
-      transition: transform 0.4s ease;
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    h2 {
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
     }
 
-    .titulo-section h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      margin: 0;
+    .nombre {
+      text-transform: capitalize;
+      background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
     }
 
-    label {
+    .mensaje {
+      color: #ccc;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: rgba(15, 15, 15, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+    }
+
+    .card h3 {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+
+    .card .estudio {
+      display: block;
+      background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .info p {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
-                  linear-gradient(90deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3)) border-box;
-      border: 2px solid transparent;
-      color: #e3f2fd;
-      font-weight: 500;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      margin: 8px 0;
+      font-size: 14px;
+      color: #fff;
+      line-height: 1.4;
     }
 
-    label:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    }
+.icon {
+  width: 25px;
+  text-align: center;
+  margin-right: 8px;
+  font-size: 16px;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+}
 
-    input[type="checkbox"] {
-      transform: scale(1.2);
-      accent-color: var(--color-accent-3);
-    }
+@keyframes tornasol-azul {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 
-    .btn-confirmar {
+.cancel-icon i {
+  cursor: pointer;
+  background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: tornasol-azul 4s ease infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  
+}
+
+.cancel-icon {
+  font-size: 42px;
+  border-image-slice: 1;
+  border-radius: 50%;
+  width: 75px;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98));
+}
+.cancel-icon i:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 6px rgba(0, 194, 255, 0.6));
+}
+
+    /* Botón volver tornasol */
+    .btn-volver {
       margin-top: 25px;
       border: 2px solid transparent;
-      background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2), var(--color-accent-3));
+      background:
+        linear-gradient(135deg, rgba(15,15,15,0.95), rgba(25,25,25,0.98)) padding-box,
+        linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) border-box;
       color: #fff;
       border-radius: 10px;
       padding: 12px 24px;
@@ -99,167 +158,78 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .btn-confirmar:hover {
+    .btn-volver:hover {
       transform: scale(1.03);
       box-shadow: 0 0 15px rgba(0,194,255,0.6);
     }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+    .social-icons {
+      display: flex;
+      
+      justify-content: center;
+      gap: 15px;
+      margin-top: 8px;
     }
 
-    /* ==== SWEETALERT2 DARK CUSTOM ==== */
-    .swal2-popup {
-      background: linear-gradient(160deg, #0b0b0b 0%, #1a1a1a 100%) !important;
-      color: #f5f5f5 !important;
-      border-radius: 18px !important;
-      box-shadow: 0 0 25px rgba(0, 123, 255, 0.25) !important;
-      font-family: 'Poppins', sans-serif !important;
+    .social-icons a {
+      font-size: 18px;
+      color: #fff;
+      transition: color 0.3s;
     }
 
-    .swal2-title {
-      font-family: 'Playfair Display', serif !important;
-      color: #ffffff !important;
+    .social-icons a:hover {
+      color: #00c2ff;
     }
 
-    .swal2-confirm {
-      background: linear-gradient(90deg, #007bff, #6f00ff, #00c2ff) !important;
-      border: none !important;
-      border-radius: 10px !important;
-      color: #fff !important;
-      font-weight: 600 !important;
-      text-transform: uppercase;
-      box-shadow: 0 0 15px rgba(0, 194, 255, 0.4);
-      transition: all 0.3s ease-in-out;
-    }
-
-    .swal2-confirm:hover {
-      box-shadow: 0 0 25px rgba(0, 194, 255, 0.8);
-      transform: scale(1.05);
-    }
-
-    .swal2-cancel {
-      background: #333 !important;
-      color: #fff !important;
-      border-radius: 10px !important;
-      font-weight: 500 !important;
+    @media (max-width: 480px) {
+      .container {
+        padding: 25px;
+        margin-top: 40px;
+      }
+      .cancel-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+      }
+      h2 { font-size: 18px; }
+      .info p { font-size: 13px; }
     }
   </style>
 </head>
 
 <body>
+  <header>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  </header>
   <div class="container">
-    <header>
-      <img src="{{ url_for('static', filename='img/favicon.png') }}" alt="Logo de Fronesis Studio">
-    </header>
+<div class="cancel-icon"><i class="fa-solid fa-xmark"></i></div>
 
-    <div class="titulo-section">
-      <h3>🕒 Restringir horas del día</h3>
-      <h5>{{ fecha_formateada }}</h5>
+    <h2>Su cancelación ha sido Exitosa</h2>
+    <p class="mensaje">La cita ha sido eliminada correctamente de nuestro sistema.</p>
+
+    <div class="card">
+      <h3>Cita Cancelada<br><span>FRONESIS STUDIO</span></h3>
+
+      <div class="info">
+        <p><i class="icon fa-solid fa-user"></i> {{ nombre }}</p>
+        <p><i class="icon fa-solid fa-calendar"></i>{{ fecha_formateada }}</p>
+        <p><i class="icon fa-solid fa-clock"></i> {{ hora_am_pm }}</p>
+        <p><i class="icon fa-solid fa-location-dot"></i>Carerra 98A #131-05 Aures</p>
+      </div>
     </div>
 
-    <div class="hora-section">
-      <form id="formRestriccion" method="POST">
-        <div class="horas-container">
-          {% for hora in todas_las_horas %}
-          <label>
-            <span class="hora-item">{{ hora }}</span>
-            <input type="checkbox" name="horas" value="{{ hora }}" {% if hora in horas_restringidas %}checked{% endif %}>
-          </label>
-          {% endfor %}
-        </div>
-
-        <div class="checkbox-dia">
-          <label>
-            <input type="checkbox" id="restringir_dia" name="restringir_dia" {% if dia_completo %}checked{% endif %}>
-            🗓️ Restringir día completo
-          </label>
-        </div>
-
-        <button class="btn-confirmar" type="submit">Guardar restricción</button>
-      </form>
-    </div>
-
-    <footer>
+    <button class="btn-volver" onclick="window.location.href='/'">Volver al inicio</button>
+<footer>
       <h3>Redes sociales</h3>
       <div class="social-icons">
-        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="#"><i class="fa-brands fa-facebook"></i></a>
         <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
       </div>
       <div class="footer-bottom">
         © 2025 Fronesis Studio | Barbería Premium
       </div>
     </footer>
+  
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <script>
-    const form = document.getElementById('formRestriccion');
-    const restrDia = document.getElementById('restringir_dia');
-    const checksHoras = document.querySelectorAll('input[name="horas"]');
-
-    restrDia.addEventListener('change', () => {
-      checksHoras.forEach(chk => chk.disabled = restrDia.checked);
-    });
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-
-      Swal.fire({
-        title: '¿Confirmar restricción?',
-        text: restrDia.checked
-          ? 'Se restringirá el día completo y se cancelarán las citas programadas.'
-          : 'Se restringirán las horas seleccionadas.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, confirmar',
-        cancelButtonText: 'Cancelar',
-        background: '#0b0b0b',
-        color: '#fff'
-      }).then(result => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: 'Procesando...',
-            text: 'Aplicando restricción en el sistema.',
-            background: '#0b0b0b',
-            color: '#fff',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading(),
-          });
-
-          const formData = new FormData(form);
-          fetch(form.action || window.location.href, {
-            method: 'POST',
-            body: formData
-          })
-          .then(resp => resp.json())
-          .then(data => {
-            Swal.fire({
-              title: '✅ Restricción aplicada',
-              text: data.mensaje || 'Las restricciones se aplicaron correctamente.',
-              icon: 'success',
-              background: '#0b0b0b',
-              color: '#fff',
-              confirmButtonText: 'OK'
-            }).then(() => {
-              window.location.href = "/admin/calendario"; // 🔹 Redirección
-            });
-          })
-          .catch(() => {
-            Swal.fire({
-              title: '❌ Error',
-              text: 'Ocurrió un problema al aplicar las restricciones.',
-              icon: 'error',
-              background: '#0b0b0b',
-              color: '#fff'
-            });
-          });
-        }
-      });
-    });
-  </script>
 </body>
 </html>
