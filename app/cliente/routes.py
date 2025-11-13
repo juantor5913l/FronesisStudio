@@ -440,6 +440,17 @@ def confirmacion_reagendada(token):
 def cancelar_cita(token):
     from app import db, models
     cita_id = desencriptar_id(token)
+    if cita.hora:
+        try:
+            hora = cita.hora.hour
+            minuto = cita.hora.minute
+            sufijo = "AM" if hora < 12 else "PM"
+            hora_12 = hora % 12 or 12
+            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
+        except Exception:
+            cita.hora_am_pm = str(cita.hora)
+    else:
+        cita.hora_am_pm = None
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
@@ -460,17 +471,7 @@ def confirmacion_cancelar(token):
         return redirect(url_for('cliente.calendario_view'))
 
     cita = db.session.query(models.Cita).get_or_404(cita_id)
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            cita.hora_am_pm = str(cita.hora)
-    else:
-        cita.hora_am_pm = None
+   
 
     destinatario = cita.correo_electronico
     nombre = cita.nombre
