@@ -1,23 +1,31 @@
 from datetime import datetime
 
-def formatear_hora_12h(fecha, hora):
-    """
-    Convierte fecha y hora a formato legible en español (12h con AM/PM).
-    Ejemplo:
-      Entrada: ('2025-11-13', '14:30')
-      Salida: ('2:30 p. m.', '13 de noviembre de 2025')
-    """
-    try:
-        # Parseo de fecha y hora
-        dt_fecha = datetime.strptime(fecha, "%Y-%m-%d")
-        dt_hora = datetime.strptime(hora, "%H:%M")
+MESES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+    5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+    9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+}
 
-        fecha_legible = dt_fecha.strftime("%d de %B de %Y")
-        hora_legible = dt_hora.strftime("%I:%M %p").lstrip("0").replace("AM", "a. m.").replace("PM", "p. m.")
-        return hora_legible, fecha_legible
-    except Exception as e:
-        print("⚠️ Error al formatear hora:", e)
-        return hora, fecha
+# --- FUNCIÓN PARA FORMATEAR FECHA EN ESPAÑOL ---
+def formatear_fecha(fecha_dt):
+    dia = fecha_dt.day
+    mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
+    año = fecha_dt.year
+    return f"{dia} de {mes} de {año}"
+
+# --- FUNCIÓN PARA FORMATEAR HORA EN 12H ---
+def formatear_hora_12h(fecha, hora):
+    tz = pytz.timezone("America/Bogota")
+    inicio = tz.localize(datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M:%S"))
+
+    hora_24 = inicio.hour
+    minuto = inicio.minute
+    sufijo = "AM" if hora_24 < 12 else "PM"
+    hora_12 = hora_24 % 12 or 12
+    hora_formateada = f"{hora_12}:{minuto:02d} {sufijo}"
+    fecha_formateada = formatear_fecha(inicio).capitalize()
+    return hora_formateada, fecha_formateada
+
 
 
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
