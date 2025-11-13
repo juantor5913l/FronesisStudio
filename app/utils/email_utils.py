@@ -25,6 +25,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
     from flask import current_app
     import os, sys, traceback
     from app.utils.security_utils import encriptar_id
+    from flask_mail import Message
     try:
         # --- FORMATEO DE FECHA Y HORA ---
         if fecha.count('-') == 2 and ':' in hora:
