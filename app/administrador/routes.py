@@ -253,7 +253,6 @@ def horas_restringidas_json():
 
 @admin_blueprint.route('/horas/<fecha>')
 @requiere_contraseña
-
 def citas_por_dia(fecha):
     import os
     import locale
@@ -262,9 +261,12 @@ def citas_por_dia(fecha):
 
     # Establecer idioma español (según el sistema operativo)
     try:
-        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux / Mac
-    except:
-        locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux / Render
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+        except locale.Error:
+            locale.setlocale(locale.LC_TIME, '')  # Configuración por defecto
 
     # Convertir la fecha string a objeto datetime
     try:
@@ -278,7 +280,6 @@ def citas_por_dia(fecha):
     # Formatear fecha en español
     formato = "%#d de %B de %Y" if os.name == "nt" else "%-d de %B de %Y"
     fecha_formateada = fecha_obj.strftime(formato)
-
 
     # Día de la semana
     nombre_dia = fecha_obj.strftime("%A").capitalize()
