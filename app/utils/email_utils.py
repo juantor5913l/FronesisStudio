@@ -138,7 +138,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             </div>
             """
 
-        # --- Cuerpo HTML ---
+# --- HTML compatible y responsive para todos los dispositivos ---
         html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -146,72 +146,89 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{asunto}</title>
+</head>
+<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;background-color:#111111;color:#ffffff;text-align:center;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center" style="padding:40px 0;">
+        <table role="presentation" width="420" cellpadding="0" cellspacing="0" border="0" style="width:92%;max-width:420px;background-color:#1a1a1a;border-radius:18px;padding:30px;">
+          
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:20px;">
+              <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" style="border-radius:50%;display:block;">
+            </td>
+          </tr>
+
+          <!-- Título -->
+          <tr>
+            <td align="center" style="font-size:22px;font-weight:600;padding-bottom:10px;color:#ffffff;">
+              {titulo}, {nombre}
+            </td>
+          </tr>
+
+          <!-- Descripción -->
+          <tr>
+            <td align="center" style="font-size:14px;padding-bottom:25px;color:#ffffff;">
+              {descripcion}
+            </td>
+          </tr>
+
+          <!-- Info de cita -->
+          <tr>
+            <td style="background-color:#222222;border-radius:14px;padding:20px;text-align:left;color:#ffffff;font-size:14px;">
+              <p style="margin:10px 0;">👤 {nombre}</p>
+              <p style="margin:10px 0;">⏱ {hora}</p>
+              <p style="margin:10px 0;">📅 {fecha}</p>
+              <p style="margin:10px 0;">📍 Carrera 98A #131-05 Aures</p>
+              
+              <!-- Botones -->
+              {enlaces_html}
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
   <style>
-    a, a:link, a:visited, a span, p span, td span {{
-      color: #ffffff !important;
-      text-decoration: none !important;
-    }}
-    span, p, div, td {{
-      color: #ffffff !important;
+    /* Botones responsive */
+    .boton-responsive a {{
+      display:inline-block !important;
+      width:100% !important;
+      text-decoration:none !important;
     }}
     @media (max-width:480px) {{
-      .boton-responsive {{
+      .boton-responsive a {{
         display:block !important;
-        width:100% !important;
         margin:8px 0 !important;
       }}
     }}
   </style>
-</head>
-<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,rgba(15,15,15,0.95),rgba(25,25,25,0.98));
-color:#ffffff !important;text-align:center;">
-
-  <div style="margin:40px auto;max-width:420px;width:92%;border-radius:18px;
-  background:rgba(255,255,255,0.05);box-shadow:0 4px 25px rgba(0,0,0,0.5);
-  padding:30px 22px;">
-
-    <!-- LOGO EN CÍRCULO -->
-    <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" 
-          style="border-collapse:collapse;border-radius:50%;background:{gradiente};margin:0 auto 20px auto;">
-      <tr>
-        <td align="center" valign="middle" 
-            style="border-radius:50%;background:#0f0f0f;padding:3px;">
-          <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" 
-               style="border-radius:50%;display:block;">
-        </td>
-      </tr>
-    </table>
-
-    <!-- TÍTULO -->
-    <h2 style="font-size:22px;font-weight:600;margin:0 0 10px 0;
-    background:{gradiente};-webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;">
-      {titulo}, {nombre}
-    </h2>
-
-    <p style="color:#ffffff;font-size:14px;margin:0 0 25px 0;">{descripcion}</p>
-
-    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;
-    padding:20px;text-align:left;color:#ffffff !important;">
-      <h3 style="text-align:center;font-size:17px;margin:0 0 14px 0;
-      background:{gradiente};-webkit-background-clip:text;background-clip:text;
-      -webkit-text-fill-color:transparent;">
-        Reserva Estudio<br>
-        <span style="font-weight:800;font-size:19px;">FRONESIS</span>
-      </h3>
-
-      <p style="font-size:14px;margin:10px 0;">👤 {nombre}</p>
-      <p style="font-size:14px;margin:10px 0;">⏱ {hora}</p>
-      <p style="font-size:14px;margin:10px 0;">📅 {fecha}</p>
-      <p style="font-size:14px;margin:10px 0;">📍 Carerra 98A #131-05 Aures</p>
-      <br>
-      {enlaces_html}
-    </div>
-  </div>
 </body>
 </html>
 """
+
+# --- Ejemplo de enlaces_html con botones compatibles ---
+enlaces_html = f"""
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="boton-responsive">
+  <tr>
+    <td style="padding-top:20px;">
+      <a href='{base_url}/cliente/reagendar/{token}'
+         style="display:inline-block;width:47%;margin-right:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#007bff;">
+        🔁 Reagendar
+      </a>
+      <a href='{base_url}/cliente/cancelar_cita/{token}'
+         style="display:inline-block;width:47%;margin-left:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#ff4b2b;">
+        🚫 Cancelar
+      </a>
+    </td>
+  </tr>
+</table>
+"""
+
 
 
         print("📨 Enviando correo mediante SendGrid...")
