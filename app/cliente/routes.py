@@ -411,7 +411,7 @@ def confirmacion_reagendada(token):
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-
+        
     cita = db.session.query(models.Cita).get_or_404(cita_id)
     if cita.hora:
         try:
@@ -425,11 +425,14 @@ def confirmacion_reagendada(token):
     else:
         cita.hora_am_pm = None
 
+    hora_Actual = cita.hora_am_pm
     fecha_legible = formatear_fecha(cita.fecha)
 
     return render_template(
         'cliente/confirmacion_reagendada.html',
-        fecha_legible=fecha_legible
+        cita=cita,
+        fecha_legible=fecha_legible,
+        hora_Actual=hora_Actual
     )
 
 # -----------------------------------------------------------
