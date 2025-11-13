@@ -205,6 +205,7 @@ def datos_cita():
         db.session.commit()
         print(f"Cita creada: {nueva_cita.id} para {nueva_cita.nombre} el {nueva_cita.fecha} a las {nueva_cita.hora}")
         enviar_correo_async(
+            current_app._get_current_object(),
             destinatario=nueva_cita.correo_electronico,
             nombre=nueva_cita.nombre,
             fecha=str(nueva_cita.fecha),
