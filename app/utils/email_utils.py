@@ -72,7 +72,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         gradiente = "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
     
     # --- BLOQUE DE ENLACES ESTILO FRONESIS ---
-    base_url = "http://192.168.20.28:5000"
+    base_url = "https://fronesisstudio.onrender.com/"
     enlaces_html = ""
     if tipo != "cancelada":
         token = encriptar_id(id_cita)
