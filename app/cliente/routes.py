@@ -402,7 +402,6 @@ def reagendar_confirmar(token):
     session.pop('nueva_fecha', None)
     session.pop('nueva_hora', None)
 
-    flash('✅ Cita reagendada exitosamente.', 'success')
     return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
     
 @cliente_blueprint.route('/confirmacion_reagendada/<token>')
