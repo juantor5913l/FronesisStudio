@@ -24,13 +24,9 @@ def formatear_fecha(fecha_dt):
 def formatear_hora_12h(fecha, hora):
     try:
         tz = pytz.timezone("America/Bogota")
-
-        # Normaliza la hora (puede venir sin segundos)
         if len(hora.split(":")) == 2:
             hora = f"{hora}:00"
-
         dt = tz.localize(datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M:%S"))
-
         hora_24 = dt.hour
         minuto = dt.minute
         sufijo = "AM" if hora_24 < 12 else "PM"
@@ -40,7 +36,7 @@ def formatear_hora_12h(fecha, hora):
         return hora_formateada, fecha_formateada
     except Exception as e:
         print("⚠️ Error al formatear hora:", e)
-        return hora, fecha  # Devuelve valores originales si falla
+        return hora, fecha
 
 # --- Función para enviar correo vía SendGrid ---
 def enviar_por_sendgrid(destinatario, asunto, html_body):
@@ -49,7 +45,6 @@ def enviar_por_sendgrid(destinatario, asunto, html_body):
         print("❌ ERROR: Falta variable SENDGRID_API_KEY en Render.")
         sys.stdout.flush()
         return
-
     url = "https://api.sendgrid.com/v3/mail/send"
     payload = {
         "personalizations": [{"to": [{"email": destinatario}]}],
@@ -57,9 +52,7 @@ def enviar_por_sendgrid(destinatario, asunto, html_body):
         "subject": asunto,
         "content": [{"type": "text/html", "value": html_body}]
     }
-
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=15)
         print("📨 SendGrid status:", r.status_code)
@@ -74,11 +67,9 @@ def enviar_por_sendgrid(destinatario, asunto, html_body):
 # --- Función principal ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
     try:
-        # --- Formateo de fecha y hora ---
         if fecha and hora:
             hora, fecha = formatear_hora_12h(fecha, hora)
 
-        # --- Configuración según tipo ---
         tipos = {
             'nueva': {
                 "asunto": "✅ Confirmación de tu cita en Fronesis Studio",
@@ -122,23 +113,21 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="boton-responsive">
-              <tr>
-                <td style="padding-top:20px;">
-                  <a href='{base_url}/cliente/reagendar/{token}'
-                     style="display:inline-block;width:47%;margin-right:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#007bff;">
-                    🔁 Reagendar
-                  </a>
-                  <a href='{base_url}/cliente/cancelar_cita/{token}'
-                     style="display:inline-block;width:47%;margin-left:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#ff4b2b;">
-                    🚫 Cancelar
-                  </a>
-                </td>
-              </tr>
-            </table>
+            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;">
+            <div style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
+              <a href='{base_url}/cliente/reagendar/{token}'
+                 style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;
+                 background-color:#007bff; background-image:-webkit-linear-gradient(90deg,#007bff,#6f00ff,#00c2ff); background-image:{gradiente};">
+                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🔁 Reagendar</span>
+              </a>
+              <a href='{base_url}/cliente/cancelar_cita/{token}'
+                 style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;
+                 background-color:#ff4b2b; background-image:-webkit-linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b); background-image:{gradiente};">
+                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🚫 Cancelar</span>
+              </a>
+            </div>
             """
 
-        # --- Cuerpo HTML ---
         html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -146,85 +135,79 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{asunto}</title>
-</head>
-<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;background-color:#111111;color:#ffffff;text-align:center;">
-
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      <td align="center" style="padding:40px 0;">
-        <table role="presentation" width="420" cellpadding="0" cellspacing="0" border="0" style="width:92%;max-width:420px;background-color:#1a1a1a;border-radius:18px;padding:30px;">
-          
-          <!-- Logo con gradiente compatible iOS -->
-          <tr>
-            <td align="center" style="padding-bottom:20px;">
-              <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" 
-                     style="border-collapse:collapse;border-radius:50%;
-                            background-color:#007bff; /* fallback sólido */
-                            background-image:-webkit-linear-gradient(90deg,{gradiente});
-                            background-image:{gradiente};
-                            margin:0 auto 20px auto;">
-                <tr>
-                  <td align="center" valign="middle" style="border-radius:50%;background:#0f0f0f;padding:3px;">
-                    <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" style="border-radius:50%;display:block;">
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Título con gradiente compatible iOS -->
-          <tr>
-            <td align="center" style="font-size:22px;font-weight:600;padding-bottom:10px;
-                       background-color:#007bff;
-                       background-image:-webkit-linear-gradient(90deg,{gradiente});
-                       background-image:{gradiente};
-                       -webkit-background-clip:text;
-                       background-clip:text;
-                       -webkit-text-fill-color:transparent;
-                       color:#ffffff;">
-              {titulo}, {nombre}
-            </td>
-          </tr>
-
-          <!-- Descripción -->
-          <tr>
-            <td align="center" style="font-size:14px;padding-bottom:25px;color:#ffffff;">
-              {descripcion}
-            </td>
-          </tr>
-
-          <!-- Info de cita -->
-          <tr>
-            <td style="background-color:#222222;border-radius:14px;padding:20px;text-align:left;color:#ffffff;font-size:14px;">
-              <p style="margin:10px 0;">👤 {nombre}</p>
-              <p style="margin:10px 0;">⏱ {hora}</p>
-              <p style="margin:10px 0;">📅 {fecha}</p>
-              <p style="margin:10px 0;">📍 Carrera 98A #131-05 Aures</p>
-              
-              <!-- Botones -->
-              {enlaces_html}
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-
   <style>
-    /* Botones responsive */
-    .boton-responsive a {{
-      display:inline-block !important;
-      width:100% !important;
-      text-decoration:none !important;
+    a, a:link, a:visited, a span, p span, td span {{
+      color: #ffffff !important;
+      text-decoration: none !important;
+    }}
+    span, p, div, td {{
+      color: #ffffff !important;
     }}
     @media (max-width:480px) {{
-      .boton-responsive a {{
+      .boton-responsive {{
         display:block !important;
+        width:100% !important;
         margin:8px 0 !important;
       }}
     }}
   </style>
+</head>
+<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,rgba(15,15,15,0.95),rgba(25,25,25,0.98));
+color:#ffffff !important;text-align:center;">
+
+  <div style="margin:40px auto;max-width:420px;width:92%;border-radius:18px;
+  background:rgba(255,255,255,0.05);box-shadow:0 4px 25px rgba(0,0,0,0.5);
+  padding:30px 22px;">
+
+    <!-- LOGO EN CÍRCULO -->
+    <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" 
+          style="border-collapse:collapse;border-radius:50%;
+          background-color:#007bff; 
+          background-image:-webkit-linear-gradient(90deg,{gradiente});
+          background-image:{gradiente};
+          margin:0 auto 20px auto;">
+      <tr>
+        <td align="center" valign="middle" 
+            style="border-radius:50%;background:#0f0f0f;padding:3px;">
+          <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" 
+               style="border-radius:50%;display:block;">
+        </td>
+      </tr>
+    </table>
+
+    <!-- TÍTULO -->
+    <h2 style="font-size:22px;font-weight:600;margin:0 0 10px 0;
+    background-color:#007bff;
+    background-image:-webkit-linear-gradient(90deg,{gradiente});
+    background-image:{gradiente};
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;">
+      {titulo}, {nombre}
+    </h2>
+
+    <p style="color:#ffffff;font-size:14px;margin:0 0 25px 0;">{descripcion}</p>
+
+    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;
+    padding:20px;text-align:left;color:#ffffff !important;">
+      <h3 style="text-align:center;font-size:17px;margin:0 0 14px 0;
+      background-color:#007bff;
+      background-image:-webkit-linear-gradient(90deg,{gradiente});
+      background-image:{gradiente};
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;">
+        Reserva Estudio<br>
+        <span style="font-weight:800;font-size:19px;">FRONESIS</span>
+      </h3>
+
+      <p style="font-size:14px;margin:10px 0;">👤 {nombre}</p>
+      <p style="font-size:14px;margin:10px 0;">⏱ {hora}</p>
+      <p style="font-size:14px;margin:10px 0;">📅 {fecha}</p>
+      <p style="font-size:14px;margin:10px 0;">📍 Carerra 98A #131-05 Aures</p>
+      <br>
+      {enlaces_html}
+    </div>
+  </div>
 </body>
 </html>
 """
