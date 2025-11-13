@@ -5,15 +5,6 @@ from . import admin_blueprint
 from .auth_admin import requiere_contraseña
 
 
-# ---------------------------------------------------------
-# 🔹 LISTAR CITAS
-# ---------------------------------------------------------
-@admin_blueprint.route('/listar_cortes', methods=['GET'])
-def listar_cortes():
-    from app import db, models
-    lista_cortes = db.session.query(models.Cita).all()
-    return render_template('administrador/listar_cortes.html', lista_cortes=lista_cortes)
-
 
 
 
