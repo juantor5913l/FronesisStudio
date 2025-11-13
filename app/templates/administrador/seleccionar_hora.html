@@ -363,7 +363,10 @@
                 popup: 'swal-dark',
                 confirmButton: 'swal-confirm'
               }
-            }).then(() => location.reload());
+            }).then(() => {
+  // Redirige al finalizar el modal
+              window.location.href = '/administrador/citas_por_dia';
+            });
           })
           .catch(() => {
             Swal.fire({
