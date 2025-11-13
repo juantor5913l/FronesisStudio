@@ -83,62 +83,57 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             'nueva': {
                 "asunto": "✅ Confirmación de tu cita en Fronesis Studio",
                 "titulo": "Confirmación de tu cita",
-                "descripcion": "Tu cita ha sido agendada exitosamente.",
-                "gradiente": "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
+                "descripcion": "Tu cita ha sido agendada exitosamente."
             },
             'reagendada': {
                 "asunto": "🔄 Tu cita ha sido reagendada",
                 "titulo": "Tu cita ha sido reagendada",
-                "descripcion": "Tu cita ha sido actualizada con nueva fecha y hora.",
-                "gradiente": "linear-gradient(90deg,#e67e22,#ff9900,#ffd580)"
+                "descripcion": "Tu cita ha sido actualizada con nueva fecha y hora."
             },
             'cancelada': {
                 "asunto": "❌ Tu cita ha sido cancelada",
                 "titulo": "Tu cita ha sido cancelada",
-                "descripcion": "Tu cita fue cancelada correctamente.",
-                "gradiente": "linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b)"
+                "descripcion": "Tu cita fue cancelada correctamente."
             },
             'cancelada_admin': {
                 "asunto": "⚠️ Tu cita ha sido cancelada por el barbero",
                 "titulo": "Cancelación por parte del estudio",
                 "descripcion": ("Lamentamos informarte que tu cita ha sido cancelada, "
                                 "ya que al barbero se le presentó un imprevisto para ese día. "
-                                "Puedes reagendar en otro horario disponible."),
-                "gradiente": "linear-gradient(90deg,#ff8c00,#ff4b2b,#c0392b)"
+                                "Puedes reagendar en otro horario disponible.")
             },
             'recordatorio': {
                 "asunto": "⏰ Recordatorio de tu cita - Fronesis Studio",
                 "titulo": "Recordatorio de tu cita",
-                "descripcion": "Tu cita se aproxima. Te esperamos en Frónesis Studio dentro de 2 horas.",
-                "gradiente": "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
+                "descripcion": "Tu cita se aproxima. Te esperamos en Frónesis Studio dentro de 2 horas."
             }
         }
 
         conf = tipos.get(tipo, tipos['nueva'])
-        asunto, titulo, descripcion, gradiente = (
-            conf["asunto"], conf["titulo"], conf["descripcion"], conf["gradiente"]
-        )
+        asunto, titulo, descripcion = conf["asunto"], conf["titulo"], conf["descripcion"]
 
-        # --- Bloque de enlaces ---
         base_url = "https://fronesisstudio.onrender.com"
         enlaces_html = ""
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;">
-            <div style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
-              <a href='{base_url}/cliente/reagendar/{token}'
-                 style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#007bff,#6f00ff,#00c2ff);">
-                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🔁 Reagendar</span>
-              </a>
-              <a href='{base_url}/cliente/cancelar_cita/{token}'
-                 style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);">
-                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🚫 Cancelar</span>
-              </a>
-            </div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="boton-responsive">
+              <tr>
+                <td style="padding-top:20px;">
+                  <a href='{base_url}/cliente/reagendar/{token}'
+                     style="display:inline-block;width:47%;margin-right:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#007bff;">
+                    🔁 Reagendar
+                  </a>
+                  <a href='{base_url}/cliente/cancelar_cita/{token}'
+                     style="display:inline-block;width:47%;margin-left:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#ff4b2b;">
+                    🚫 Cancelar
+                  </a>
+                </td>
+              </tr>
+            </table>
             """
 
-# --- HTML compatible y responsive para todos los dispositivos ---
+        # --- Cuerpo HTML ---
         html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -210,26 +205,6 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 </body>
 </html>
 """
-
-# --- Ejemplo de enlaces_html con botones compatibles ---
-enlaces_html = f"""
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="boton-responsive">
-  <tr>
-    <td style="padding-top:20px;">
-      <a href='{base_url}/cliente/reagendar/{token}'
-         style="display:inline-block;width:47%;margin-right:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#007bff;">
-        🔁 Reagendar
-      </a>
-      <a href='{base_url}/cliente/cancelar_cita/{token}'
-         style="display:inline-block;width:47%;margin-left:6px;padding:12px 0;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background-color:#ff4b2b;">
-        🚫 Cancelar
-      </a>
-    </td>
-  </tr>
-</table>
-"""
-
-
 
         print("📨 Enviando correo mediante SendGrid...")
         sys.stdout.flush()
