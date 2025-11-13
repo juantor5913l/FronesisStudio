@@ -168,8 +168,8 @@ def datos_cita():
     from app import db, models
 
     if request.method == 'POST':
-        nombre = request.form.get('nombre')
-        apellido = request.form.get('apellido')
+        nombre = request.form.get('nombre', '').strip().title()
+        apellido = request.form.get('apellido', '').strip().title()
         correo_electronico = request.form.get('correo_electronico')
         telefono = request.form.get('telefono')
         fecha = session.get('fecha_cita')
