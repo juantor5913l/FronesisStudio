@@ -405,9 +405,6 @@ def reagendar_confirmar(token):
     flash('✅ Cita reagendada exitosamente.', 'success')
     return render_template(
                 'cliente/confirmacion_reagendada.html',
-                nombre=cita.nombre,
-                fecha_formateada=fecha_formateada,
-                hora_am_pm=hora_am_pm,
                 token=encriptar_id(cita.id)
             )
 # -----------------------------------------------------------
