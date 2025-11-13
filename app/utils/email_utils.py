@@ -83,34 +83,39 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             'nueva': {
                 "asunto": "✅ Confirmación de tu cita en Fronesis Studio",
                 "titulo": "Confirmación de tu cita",
-                "descripcion": "Tu cita ha sido agendada exitosamente."
+                "descripcion": "Tu cita ha sido agendada exitosamente.",
+                "gradiente": "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
             },
             'reagendada': {
                 "asunto": "🔄 Tu cita ha sido reagendada",
                 "titulo": "Tu cita ha sido reagendada",
-                "descripcion": "Tu cita ha sido actualizada con nueva fecha y hora."
+                "descripcion": "Tu cita ha sido actualizada con nueva fecha y hora.",
+                "gradiente": "linear-gradient(90deg,#e67e22,#ff9900,#ffd580)"
             },
             'cancelada': {
                 "asunto": "❌ Tu cita ha sido cancelada",
                 "titulo": "Tu cita ha sido cancelada",
-                "descripcion": "Tu cita fue cancelada correctamente."
+                "descripcion": "Tu cita fue cancelada correctamente.",
+                "gradiente": "linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b)"
             },
             'cancelada_admin': {
                 "asunto": "⚠️ Tu cita ha sido cancelada por el barbero",
                 "titulo": "Cancelación por parte del estudio",
                 "descripcion": ("Lamentamos informarte que tu cita ha sido cancelada, "
                                 "ya que al barbero se le presentó un imprevisto para ese día. "
-                                "Puedes reagendar en otro horario disponible.")
+                                "Puedes reagendar en otro horario disponible."),
+                "gradiente": "linear-gradient(90deg,#ff8c00,#ff4b2b,#c0392b)"
             },
             'recordatorio': {
                 "asunto": "⏰ Recordatorio de tu cita - Fronesis Studio",
                 "titulo": "Recordatorio de tu cita",
-                "descripcion": "Tu cita se aproxima. Te esperamos en Frónesis Studio dentro de 2 horas."
+                "descripcion": "Tu cita se aproxima. Te esperamos en Frónesis Studio dentro de 2 horas.",
+                "gradiente": "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
             }
         }
 
         conf = tipos.get(tipo, tipos['nueva'])
-        asunto, titulo, descripcion = conf["asunto"], conf["titulo"], conf["descripcion"]
+        asunto, titulo, descripcion, gradiente = conf["asunto"], conf["titulo"], conf["descripcion"], conf["gradiente"]
 
         base_url = "https://fronesisstudio.onrender.com"
         enlaces_html = ""
@@ -149,16 +154,34 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
       <td align="center" style="padding:40px 0;">
         <table role="presentation" width="420" cellpadding="0" cellspacing="0" border="0" style="width:92%;max-width:420px;background-color:#1a1a1a;border-radius:18px;padding:30px;">
           
-          <!-- Logo -->
+          <!-- Logo con gradiente compatible iOS -->
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" style="border-radius:50%;display:block;">
+              <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" 
+                     style="border-collapse:collapse;border-radius:50%;
+                            background-color:#007bff; /* fallback sólido */
+                            background-image:-webkit-linear-gradient(90deg,{gradiente});
+                            background-image:{gradiente};
+                            margin:0 auto 20px auto;">
+                <tr>
+                  <td align="center" valign="middle" style="border-radius:50%;background:#0f0f0f;padding:3px;">
+                    <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" style="border-radius:50%;display:block;">
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
-          <!-- Título -->
+          <!-- Título con gradiente compatible iOS -->
           <tr>
-            <td align="center" style="font-size:22px;font-weight:600;padding-bottom:10px;color:#ffffff;">
+            <td align="center" style="font-size:22px;font-weight:600;padding-bottom:10px;
+                       background-color:#007bff;
+                       background-image:-webkit-linear-gradient(90deg,{gradiente});
+                       background-image:{gradiente};
+                       -webkit-background-clip:text;
+                       background-clip:text;
+                       -webkit-text-fill-color:transparent;
+                       color:#ffffff;">
               {titulo}, {nombre}
             </td>
           </tr>
