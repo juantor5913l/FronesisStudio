@@ -5,11 +5,6 @@ from . import admin_blueprint
 from .auth_admin import requiere_contraseña
 
 
-def formatear_fecha(fecha_dt):
-    dia = fecha_dt.day
-    mes = MESES_ES[fecha_dt.month]
-    año = fecha_dt.year
-    return f"{dia} de {mes} de {año}"
 
 
 
@@ -246,7 +241,6 @@ def horas_restringidas_json():
     from app import db, models
     horas = db.session.query(models.HoraRestringida).all()
     return jsonify([{"fecha": h.fecha.strftime('%Y-%m-%d')} for h in horas])
-
 @admin_blueprint.route('/horas/<fecha>')
 @requiere_contraseña
 def citas_por_dia(fecha):
@@ -255,33 +249,38 @@ def citas_por_dia(fecha):
     from datetime import datetime
     from app import models
 
-    # Establecer idioma español (según el sistema operativo)
+    # 🔹 Forzar idioma español según el sistema operativo
     try:
         locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux / Render
     except locale.Error:
         try:
-            locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            locale.setlocale(locale.LC_TIME, 'es_CO.UTF-8')  # Español Colombia
         except locale.Error:
-            locale.setlocale(locale.LC_TIME, '')  # Configuración por defecto
+            try:
+                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            except locale.Error:
+                locale.setlocale(locale.LC_TIME, '')  # Fallback
 
-    # Convertir la fecha string a objeto datetime
+    # 🔹 Convertir la fecha string a objeto datetime
     try:
         fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
     except ValueError:
         return f"Formato de fecha inválido: {fecha}", 400
 
-    # Consultar las citas del día
+    # 🔹 Consultar las citas del día
     citas = models.Cita.query.filter_by(fecha=fecha_obj).order_by(models.Cita.hora.asc()).all()
 
-    fecha_formateada = formatear_fecha(cita.fecha)
+    # 🔹 Formatear fecha en español
+    formato = "%#d de %B de %Y" if os.name == "nt" else "%-d de %B de %Y"
+    fecha_formateada = fecha_obj.strftime(formato).capitalize()
 
-    # Día de la semana
+    # 🔹 Día de la semana también en español
     nombre_dia = fecha_obj.strftime("%A").capitalize()
 
     return render_template(
         'administrador/citas_por_dia.html',
         fecha=fecha,  # versión ISO
-        fecha_formateada=fecha_formateada,  # versión legible
+        fecha_formateada=fecha_formateada,  # versión legible (en español)
         nombre_dia=nombre_dia,
         citas=citas
     )
