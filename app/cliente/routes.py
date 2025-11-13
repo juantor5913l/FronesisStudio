@@ -489,7 +489,6 @@ def confirmacion_cancelar(token):
             hora=hora,
             tipo='cancelada'
         )
-        flash('❌ La cita ha sido cancelada exitosamente.', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'⚠️ Ocurrió un error al cancelar la cita: {str(e)}', 'danger')
