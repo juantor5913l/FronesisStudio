@@ -136,21 +136,28 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         )
 
     mail.send(msg)
-
+import logging
 from threading import Thread
 import traceback
+import sys
 
 def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
         with app.app_context():
-            print("Iniciando envío de correo asíncrono...")
             try:
+                print("Iniciando envío de correo asíncrono...")
+                sys.stdout.flush()  # fuerza a que Render muestre el print
                 enviar_correo_con_invitacion(**kwargs)
                 print("✅ Correo enviado de forma asíncrona.")
+                sys.stdout.flush()
             except Exception as e:
-                print("❌ ERROR en el envío asíncrono de correo:")
-                print(e)
-                traceback.print_exc()
+                error_info = traceback.format_exc()
+                print("❌ ERROR en el envío asíncrono de correo:", e)
+                print(error_info)
+                sys.stdout.flush()
+                # También guarda el error en log para Render
+                logging.error("Error en hilo de correo: %s\n%s", e, error_info)
             finally:
                 print("🧵 Hilo finalizado.")
+                sys.stdout.flush()
     Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs).start()
