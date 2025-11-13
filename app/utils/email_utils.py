@@ -1,19 +1,26 @@
 from datetime import datetime
 import pytz
+import requests
+import os
+import sys
+import traceback
+from app.utils.security_utils import encriptar_id
+
+# --- Diccionario de meses en español ---
 MESES_ES = {
     1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
     5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
     9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
 }
 
-# --- FUNCIÓN PARA FORMATEAR FECHA EN ESPAÑOL ---
+# --- Función para formatear fecha en español ---
 def formatear_fecha(fecha_dt):
     dia = fecha_dt.day
     mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
     año = fecha_dt.year
     return f"{dia} de {mes} de {año}"
 
-# --- FUNCIÓN PARA FORMATEAR HORA EN 12H ---
+# --- Función para formatear hora en 12h ---
 def formatear_hora_12h(fecha, hora):
     tz = pytz.timezone("America/Bogota")
     inicio = tz.localize(datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M:%S"))
@@ -27,19 +34,41 @@ def formatear_hora_12h(fecha, hora):
     return hora_formateada, fecha_formateada
 
 
+# --- Función para enviar correo vía SendGrid ---
+def enviar_por_sendgrid(destinatario, asunto, html_body):
+    api_key = os.getenv("SENDGRID_API_KEY")
+    if not api_key:
+        print("❌ ERROR: Falta variable SENDGRID_API_KEY en Render.")
+        sys.stdout.flush()
+        return
 
+    url = "https://api.sendgrid.com/v3/mail/send"
+    payload = {
+        "personalizations": [{"to": [{"email": destinatario}]}],
+        "from": {"email": "no-reply@fronesisstudio.com", "name": "Fronesis Studio"},
+        "subject": asunto,
+        "content": [{"type": "text/html", "value": html_body}]
+    }
+
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    r = requests.post(url, json=payload, headers=headers)
+    print("📨 SendGrid status:", r.status_code)
+    if r.status_code >= 400:
+        print("❌ Error al enviar correo:", r.text)
+    else:
+        print("✅ Correo enviado correctamente.")
+    sys.stdout.flush()
+
+
+# --- Función principal ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
-    from app import mail  # Importación local evita problemas circulares
-    from flask import current_app
-    import os, sys, traceback
-    from app.utils.security_utils import encriptar_id
-    from flask_mail import Message
     try:
-        # --- FORMATEO DE FECHA Y HORA ---
+        # --- Formateo de fecha y hora ---
         if fecha.count('-') == 2 and ':' in hora:
             hora, fecha = formatear_hora_12h(fecha, hora)
 
-        # --- CONFIGURACIÓN SEGÚN TIPO DE CITA ---
+        # --- Configuración según el tipo de cita ---
         if tipo == 'nueva':
             asunto = "✅ Confirmación de tu cita en Fronesis Studio"
             titulo = "Confirmación de tu cita"
@@ -73,7 +102,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             descripcion = "Detalles de tu cita."
             gradiente = "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
 
-        # --- BLOQUE DE ENLACES ---
+        # --- Bloque de enlaces ---
         base_url = "https://fronesisstudio.onrender.com"
         enlaces_html = ""
         if tipo != "cancelada":
@@ -92,7 +121,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             </div>
             """
 
-        # --- CUERPO HTML DEL CORREO ---
+        # --- Cuerpo HTML ---
         html_body = f"""<!DOCTYPE html>
         <html lang="es">
         <head><meta charset="UTF-8"><title>{asunto}</title></head>
@@ -113,36 +142,10 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         </body>
         </html>"""
 
-        # --- CREAR MENSAJE ---
-        msg = Message(
-            subject=asunto,
-            sender=("Fronesis Studio", "tu_correo@gmail.com"),
-            recipients=[destinatario],
-            html=html_body
-        )
-
-        # --- INCRUSTAR LOGO INLINE (opcional) ---
-        try:
-            logo_path = os.path.join(current_app.root_path, "static", "img", "favicon.png")
-            with open(logo_path, "rb") as f:
-                logo_data = f.read()
-                msg.attach(
-                    filename="favicon.png",
-                    content_type="image/png",
-                    data=logo_data,
-                    disposition="inline",
-                    headers=[("Content-ID", "<logo_fronesis>")]
-                )
-        except Exception as e:
-            print(f"⚠️ No se pudo adjuntar el logo: {e}")
-            sys.stdout.flush()
-
-        # --- ENVIAR CORREO ---
-        print("📨 Enviando correo...")
+        # --- Envío vía SendGrid ---
+        print("📨 Enviando correo mediante SendGrid...")
         sys.stdout.flush()
-        mail.send(msg)
-        print("✅ Correo enviado correctamente.")
-        sys.stdout.flush()
+        enviar_por_sendgrid(destinatario, asunto, html_body)
 
     except Exception as e:
         print("❌ ERROR durante el envío del correo:", e)
