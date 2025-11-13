@@ -15,6 +15,20 @@ def seleccionar_hora(fecha_str):
     from app.utils.email_utils import enviar_correo_con_invitacion
     from datetime import datetime
     from flask import jsonify, request, render_template
+    import locale
+    import os
+
+    # 🔹 Forzar idioma español (independiente del sistema operativo)
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Linux / Render
+    except locale.Error:
+        try:
+            locale.setlocale(locale.LC_TIME, 'es_CO.UTF-8')  # Español Colombia
+        except locale.Error:
+            try:
+                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # Windows
+            except locale.Error:
+                locale.setlocale(locale.LC_TIME, '')  # fallback
 
     try:
         fecha_dt = datetime.strptime(fecha_str, '%Y-%m-%d').date()
@@ -56,7 +70,7 @@ def seleccionar_hora(fecha_str):
                             )
                         except Exception as e:
                             print(f"[ERROR] Correo no enviado a {cita.correo_electronico}: {e}")
-                        db.session.delete(cita)  # ⬅️ Aquí eliminamos la cita
+                        db.session.delete(cita)
 
                     db.session.commit()
                     return jsonify({
@@ -98,7 +112,7 @@ def seleccionar_hora(fecha_str):
                             )
                         except Exception as e:
                             print(f"[ERROR] Correo no enviado a {cita.correo_electronico}: {e}")
-                        db.session.delete(cita)  # ⬅️ Eliminamos la cita
+                        db.session.delete(cita)
 
                     db.session.commit()
                     return jsonify({
@@ -117,10 +131,14 @@ def seleccionar_hora(fecha_str):
                 "error": "❌ Error al guardar restricción en la base de datos."
             }), 500
 
+    # 🔹 Formatear la fecha con mes en español
+    formato = "%#d de %B de %Y" if os.name == "nt" else "%-d de %B de %Y"
+    fecha_formateada = fecha_dt.strftime(formato).capitalize()
+
     return render_template(
         'administrador/seleccionar_hora.html',
         fecha=fecha_str,
-        fecha_formateada=fecha_dt.strftime("%#d de %B de %Y"),
+        fecha_formateada=fecha_formateada,
         todas_las_horas=todas_las_horas,
         horas_restringidas=horas_restringidas_str,
         dia_completo=dia_completo
