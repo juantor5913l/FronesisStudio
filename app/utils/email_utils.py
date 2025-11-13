@@ -171,7 +171,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 
 from flask import current_app
 from threading import Thread
-
+app = create_app()
 def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
         with app.app_context():
