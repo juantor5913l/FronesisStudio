@@ -425,7 +425,7 @@ def confirmacion_reagendada(token):
     else:
         cita.hora_am_pm = None
 
-    fecha_legible = cita.fecha.strftime("%#d de %B de %Y")
+    fecha_legible = formatear_fecha(cita.fecha)
 
     return render_template(
         'cliente/confirmacion_reagendada.html',
