@@ -172,21 +172,11 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 from flask import current_app
 from threading import Thread
 
-def enviar_correo_async(**kwargs):
-    """Envía correo en un hilo con un contexto Flask válido."""
-    # 🔹 Captura la instancia actual de la app ANTES del hilo
-    app = current_app._get_current_object()
-
+def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
         with app.app_context():
-            from app.utils.email_utils import enviar_correo_con_invitacion
-            try:
-                print("📨 Iniciando envío de correo...")
-                enviar_correo_con_invitacion(**kwargs)
-                print("✅ Correo enviado correctamente.")
-            except Exception as e:
-                print("❌ Error al enviar correo:", str(e))
-
-    # 🔹 Lanza el hilo con la app capturada
-    thread = Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs)
+          print("Iniciando envío de correo asíncrono...")
+          enviar_correo_con_invitacion(**kwargs)
+          print("Correo enviado de forma asíncrona.")
+    thread = threading.Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs)
     thread.start()
