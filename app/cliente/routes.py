@@ -440,6 +440,7 @@ def confirmacion_reagendada(token):
 def cancelar_cita(token):
     from app import db, models
     cita_id = desencriptar_id(token)
+    cita = db.session.query(models.Cita).get_or_404(cita_id)
     if cita.hora:
         try:
             hora = cita.hora.hour
@@ -472,7 +473,6 @@ def confirmacion_cancelar(token):
 
     cita = db.session.query(models.Cita).get_or_404(cita_id)
    
-
     destinatario = cita.correo_electronico
     nombre = cita.nombre
     fecha = str(cita.fecha)
