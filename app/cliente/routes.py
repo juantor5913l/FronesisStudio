@@ -275,6 +275,17 @@ def reagendar_fecha(token):
         return redirect(url_for('cliente.calendario_view'))
 
     cita = db.session.query(models.Cita).get_or_404(cita_id)
+    if cita.hora:
+        try:
+            hora = cita.hora.hour
+            minuto = cita.hora.minute
+            sufijo = "AM" if hora < 12 else "PM"
+            hora_12 = hora % 12 or 12
+            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
+        except Exception:
+            cita.hora_am_pm = str(cita.hora)
+    else:
+        cita.hora_am_pm = None
 
     if request.method == 'POST':
         nueva_fecha_str = request.form.get('fecha')
@@ -413,26 +424,13 @@ def confirmacion_reagendada(token):
         return redirect(url_for('cliente.calendario_view'))
         
     cita = db.session.query(models.Cita).get_or_404(cita_id)
-    if cita.hora:
-        try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
-            sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
-        except Exception:
-            cita.hora_am_pm = str(cita.hora)
-    else:
-        cita.hora_am_pm = None
 
-    hora_Actual = cita.hora_am_pm
     fecha_legible = formatear_fecha(cita.fecha)
 
     return render_template(
         'cliente/confirmacion_reagendada.html',
         cita=cita,
-        fecha_legible=fecha_legible,
-        hora_Actual=hora_Actual
+        fecha_legible=fecha_legible
     )
 
 # -----------------------------------------------------------
