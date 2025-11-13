@@ -1,9 +1,9 @@
 from flask_mail import Message
+from flask import current_app
 from datetime import datetime
+from threading import Thread
 import pytz
 from email.mime.image import MIMEImage
-from app import mail
-from app import create_app, app
 from app.utils.security_utils import encriptar_id
 
 # 🔹 Diccionario de meses en español
@@ -35,6 +35,8 @@ def formatear_hora_12h(fecha, hora):
 
 # --- FUNCIÓN PRINCIPAL DE ENVÍO ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
+    from app import mail  # ✅ Importar dentro de la función (evita import circular)
+
     if fecha.count('-') == 2 and ':' in hora:
         hora, fecha = formatear_hora_12h(fecha, hora)
 
@@ -71,9 +73,9 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         titulo = "Detalles de tu cita"
         descripcion = "Detalles de tu cita."
         gradiente = "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
-    
+
     # --- BLOQUE DE ENLACES ESTILO FRONESIS ---
-    base_url = "https://fronesisstudio.onrender.com/"
+    base_url = "https://fronesisstudio.onrender.com"
     enlaces_html = ""
     if tipo != "cancelada":
         token = encriptar_id(id_cita)
@@ -81,15 +83,13 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;">
         <div style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
 
-          <!-- BOTÓN REAGENDAR -->
           <a href='{base_url}/cliente/reagendar/{token}'
-             style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;letter-spacing:0.3px;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#007bff,#6f00ff,#00c2ff);position:relative;z-index:1;">
+             style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#007bff,#6f00ff,#00c2ff);">
               <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🔁 Reagendar</span>
           </a>
 
-          <!-- BOTÓN CANCELAR -->
           <a href='{base_url}/cliente/cancelar_cita/{token}'
-             style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;letter-spacing:0.3px;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);position:relative;z-index:1;">
+             style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);">
               <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🚫 Cancelar</span>
           </a>
         </div>
@@ -98,56 +98,23 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
     # --- HTML DEL CORREO ---
     html_body = f"""<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{asunto}</title>
-  <style>
-    a, a:link, a:visited, a span, p span, td span {{
-      color: #ffffff !important;
-      text-decoration: none !important;
-    }}
-    span, p, div, td {{
-      color: #ffffff !important;
-    }}
-    @media (max-width:480px) {{
-      .boton-responsive {{
-        display:block !important;
-        width:100% !important;
-        margin:8px 0 !important;
-      }}
-    }}
-  </style>
-</head>
-<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,rgba(15,15,15,0.95),rgba(25,25,25,0.98));color:#ffffff !important;text-align:center;">
-  <div style="margin:40px auto;max-width:420px;width:92%;border-radius:18px;background:rgba(255,255,255,0.05);box-shadow:0 4px 25px rgba(0,0,0,0.5);padding:30px 22px;">
-    <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;border-radius:50%;background:{gradiente};margin:0 auto 20px auto;">
-      <tr>
-        <td align="center" valign="middle" style="border-radius:50%;background:#0f0f0f;padding:3px;">
-          <img src="cid:logo_fronesis" alt="Logo Fronesis" width="84" height="84" style="border-radius:50%;display:block;">
-        </td>
-      </tr>
-    </table>
-    <h2 style="font-size:22px;font-weight:600;margin:0 0 10px 0;background:{gradiente};-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
+<head><meta charset="UTF-8"><title>{asunto}</title></head>
+<body style="font-family:'Poppins',sans-serif;background:#111;color:#fff;text-align:center;">
+  <div style="margin:40px auto;max-width:420px;padding:30px;border-radius:18px;background:rgba(255,255,255,0.05);">
+    <h2 style="background:{gradiente};-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
       {titulo}, {nombre}
     </h2>
-    <p style="color:#ffffff;font-size:14px;margin:0 0 25px 0;">{descripcion}</p>
-    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:left;color:#ffffff !important;">
-      <h3 style="text-align:center;font-size:17px;margin:0 0 14px 0;background:{gradiente};-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
-        Reserva Estudio<br>
-        <span style="font-weight:800;font-size:19px;">FRONESIS</span>
-      </h3>
-      <p style="font-size:14px;margin:10px 0;">👤 {nombre}</p>
-      <p style="font-size:14px;margin:10px 0;">⏱ {hora}</p>
-      <p style="font-size:14px;margin:10px 0;">📅 {fecha}</p>
-      <p style="font-size:14px;margin:10px 0;">📍 Carerra 98A #131-05 Aures</p>
-      <br>
+    <p>{descripcion}</p>
+    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:left;">
+      <p>👤 {nombre}</p>
+      <p>⏱ {hora}</p>
+      <p>📅 {fecha}</p>
+      <p>📍 Carerra 98A #131-05 Aures</p>
       {enlaces_html}
     </div>
   </div>
 </body>
-</html>
-"""
+</html>"""
 
     # --- CREAR MENSAJE ---
     msg = Message(
@@ -170,14 +137,11 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 
     mail.send(msg)
 
-from flask import current_app
-from threading import Thread
-
+# --- ENVÍO ASÍNCRONO ---
 def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
         with app.app_context():
-          print("Iniciando envío de correo asíncrono...")
-          enviar_correo_con_invitacion(**kwargs)
-          print("Correo enviado de forma asíncrona.")
-    thread = threading.Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs)
-    thread.start()
+            print("Iniciando envío de correo asíncrono...")
+            enviar_correo_con_invitacion(**kwargs)
+            print("Correo enviado de forma asíncrona.")
+    Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs).start()
