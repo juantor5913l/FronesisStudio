@@ -5,6 +5,11 @@ from . import admin_blueprint
 from .auth_admin import requiere_contraseña
 
 
+def formatear_fecha(fecha_dt):
+    dia = fecha_dt.day
+    mes = MESES_ES[fecha_dt.month]
+    año = fecha_dt.year
+    return f"{dia} de {mes} de {año}"
 
 
 
