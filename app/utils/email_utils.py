@@ -53,7 +53,7 @@ def enviar_por_sendgrid(destinatario, asunto, html_body):
     url = "https://api.sendgrid.com/v3/mail/send"
     payload = {
         "personalizations": [{"to": [{"email": destinatario}]}],
-        "from": {"email": "no-reply@fronesisstudio.com", "name": "Fronesis Studio"},
+        "from": {"email": "fronesisstudio2@gmail.com", "name": "Fronesis Studio"},
         "subject": asunto,
         "content": [{"type": "text/html", "value": html_body}]
     }
