@@ -403,31 +403,13 @@ def reagendar_confirmar(token):
     session.pop('nueva_hora', None)
 
     flash('✅ Cita reagendada exitosamente.', 'success')
-    return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
-@cliente_blueprint.route('/confirmacion_reagendada/<token>')
-def confirmacion_reagendada(token):
-    from app import db, models
-    try:
-        cita_id = desencriptar_id(token)
-        cita = db.session.query(models.Cita).get_or_404(cita_id)
-        fecha_formateada = formatear_fecha(cita.fecha)
-        h = cita.hora.hour
-        m = cita.hora.minute
-        sufijo = "AM" if h < 12 else "PM"
-        h12 = h % 12 or 12
-        hora_am_pm = f"{h12}:{m:02d} {sufijo}"
-
-        return render_template(
-            'cliente/confirmacion_reagendada.html',
-            nombre=cita.nombre,
-            fecha_formateada=fecha_formateada,
-            hora_am_pm=hora_am_pm
-        )
-    except Exception as e:
-        print("❌ Error en confirmacion_reagendada:", e)
-        flash("No se pudo mostrar la confirmación de reagendación.", "danger")
-        return redirect(url_for('cliente.calendario_view'))
-        
+    return render_template(
+                'cliente/confirmacion_reagendada.html',
+                nombre=cita.nombre,
+                fecha_formateada=fecha_formateada,
+                hora_am_pm=hora_am_pm,
+                token=encriptar_id(cita.id)
+            )
 # -----------------------------------------------------------
 # 🔹 CANCELAR CITA
 # -----------------------------------------------------------
