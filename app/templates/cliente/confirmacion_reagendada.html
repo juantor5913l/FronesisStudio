@@ -261,7 +261,7 @@
 
       <div class="info">
         <p><i class="icon fa-solid fa-user"></i> {{ cita.nombre }} {{ cita.apellido }}</p>
-        <p><i class="icon fa-solid fa-calendar"></i> {{ cita.fecha.strftime('%A, %d de %B de %Y') }}</p>
+        <p><i class="icon fa-solid fa-calendar"></i> {{ fecha_legible }}</p>
         <p><i class="icon fa-solid fa-clock"></i> {{ cita.hora_am_pm}}</p>
         <p><i class="icon fa-solid fa-phone"></i> {{ cita.telefono }}</p>
         <p><i class="icon fa-solid fa-envelope"></i> {{ cita.correo_electronico }}</p>
