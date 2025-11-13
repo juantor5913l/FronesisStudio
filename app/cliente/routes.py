@@ -465,7 +465,7 @@ def confirmacion_cancelar(token):
     nombre = cita.nombre
     fecha = str(cita.fecha)
     hora = str(cita.hora)
-
+    token = encriptar_id(cita.id)
     try:
         db.session.delete(cita)
         db.session.commit()
@@ -484,6 +484,7 @@ def confirmacion_cancelar(token):
 
     return render_template(
         'cliente/confirmacion_cancelar.html',
+        token=token,    
         nombre=nombre,
         hora=hora,
         fecha_formateada=formatear_fecha(cita.fecha)
