@@ -1,3 +1,25 @@
+from datetime import datetime
+
+def formatear_hora_12h(fecha, hora):
+    """
+    Convierte fecha y hora a formato legible en español (12h con AM/PM).
+    Ejemplo:
+      Entrada: ('2025-11-13', '14:30')
+      Salida: ('2:30 p. m.', '13 de noviembre de 2025')
+    """
+    try:
+        # Parseo de fecha y hora
+        dt_fecha = datetime.strptime(fecha, "%Y-%m-%d")
+        dt_hora = datetime.strptime(hora, "%H:%M")
+
+        fecha_legible = dt_fecha.strftime("%d de %B de %Y")
+        hora_legible = dt_hora.strftime("%I:%M %p").lstrip("0").replace("AM", "a. m.").replace("PM", "p. m.")
+        return hora_legible, fecha_legible
+    except Exception as e:
+        print("⚠️ Error al formatear hora:", e)
+        return hora, fecha
+
+
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
     from app import mail  # Importación local evita problemas circulares
     from flask import current_app
