@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from app.models import HoraRestringida
 from . import cliente_blueprint
 from app.config import Config
-from app.utils.email_utils import enviar_correo_con_invitacion, enviar_correo_async
+from app.utils.email_utils import enviar_correo_con_invitacion
 from app.utils.security_utils import encriptar_id, desencriptar_id
 from flask import current_app
 
@@ -204,8 +204,7 @@ def datos_cita():
         db.session.add(nueva_cita)
         db.session.commit()
         print(f"Cita creada: {nueva_cita.id} para {nueva_cita.nombre} el {nueva_cita.fecha} a las {nueva_cita.hora}")
-        enviar_correo_async(
-            current_app._get_current_object(),
+        enviar_correo_con_invitacion(
             destinatario=nueva_cita.correo_electronico,
             nombre=nueva_cita.nombre,
             fecha=str(nueva_cita.fecha),
