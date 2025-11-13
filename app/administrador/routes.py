@@ -268,9 +268,7 @@ def citas_por_dia(fecha):
     # Consultar las citas del día
     citas = models.Cita.query.filter_by(fecha=fecha_obj).order_by(models.Cita.hora.asc()).all()
 
-    # Formatear fecha en español
-    formato = "%#d de %B de %Y" if os.name == "nt" else "%-d de %B de %Y"
-    fecha_formateada = fecha_obj.strftime(formato)
+    fecha_formateada = formatear_fecha(cita.fecha)
 
     # Día de la semana
     nombre_dia = fecha_obj.strftime("%A").capitalize()
