@@ -390,7 +390,7 @@ def reagendar_confirmar(token):
     cita.estado = "activa"
     db.session.commit()
 
-    enviar_correo_async(
+    enviar_correo_con_invitacion(
         id_cita=cita.id,
         destinatario=cita.correo_electronico,
         nombre=cita.nombre,
@@ -440,7 +440,7 @@ def confirmacion_cancelar(token):
     try:
         db.session.delete(cita)
         db.session.commit()
-        enviar_correo_async(
+        enviar_correo_con_invitacion(
             id_cita=cita_id,
             destinatario=destinatario,
             nombre=nombre,
