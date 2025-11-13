@@ -141,7 +141,13 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
         with app.app_context():
-            print("Iniciando envío de correo asíncrono...")
-            enviar_correo_con_invitacion(**kwargs)
-            print("Correo enviado de forma asíncrona.")
+            try:
+                print("Iniciando envío de correo asíncrono...")
+                enviar_correo_con_invitacion(**kwargs)
+                print("Correo enviado de forma asíncrona.")
+            except Exception as e:
+                import traceback
+                print("❌ Error en envío de correo asíncrono:")
+                traceback.print_exc()
     Thread(target=enviar_con_contexto, args=(app,), kwargs=kwargs).start()
+
