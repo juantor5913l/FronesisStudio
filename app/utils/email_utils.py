@@ -143,6 +143,9 @@ import sys
 
 def enviar_correo_async(app, **kwargs):
     def enviar_con_contexto(app, **kwargs):
+      print("📩 Entrando al hilo con app:", app)
+      print("Tipo de app:", type(app))
+      sys.stdout.flush()
         with app.app_context():
             try:
                 print("Iniciando envío de correo asíncrono...")
