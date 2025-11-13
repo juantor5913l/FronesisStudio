@@ -177,7 +177,7 @@ color:#ffffff !important;text-align:center;">
       <tr>
         <td align="center" valign="middle" 
             style="border-radius:50%;background:#0f0f0f;padding:3px;">
-          <img src="cid:logo_fronesis" alt="Logo Fronesis" width="84" height="84" 
+          <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" 
                style="border-radius:50%;display:block;">
         </td>
       </tr>
