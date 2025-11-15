@@ -170,12 +170,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{asunto}</title>
 
-<style>
-  a, a:link, a:visited, a span {
-    color:#ffffff !important;
-    text-decoration:none !important;
-  }
-</style>
+
 
 </head>
 
