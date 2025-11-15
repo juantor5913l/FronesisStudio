@@ -95,7 +95,8 @@ def horas_disponibles():
     todas = [
         '07:00', '07:45', '08:30', '09:45', '10:30', '11:15',
         '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
-        '18:00', '18:45'
+        '18:00', '18:45','19:30', '20:15', '21:00', '21:45', '22:30', '23:15',
+        '00:00', '00:45',
     ]
     libres = [h for h in todas if h not in ocupadas]
     return jsonify(libres)
@@ -144,7 +145,8 @@ def seleccionar_hora():
     todas_las_horas = [
         '07:00', '07:45', '08:30', '09:45', '10:30', '11:15',
         '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
-        '18:00', '18:45'
+        '18:00', '18:45','19:30', '20:15', '21:00', '21:45', '22:30', '23:15',
+        '00:00', '00:45',
     ]
 
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
@@ -351,7 +353,8 @@ def reagendar_hora(token):
     todas_las_horas = [
         '07:00', '07:45', '08:30', '09:45', '10:30', '11:15',
         '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
-        '18:00', '18:45'
+        '18:00', '18:45','19:30', '20:15', '21:00', '21:45', '22:30', '23:15',
+        '00:00', '00:45',
     ]
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
