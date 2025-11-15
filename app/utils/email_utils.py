@@ -6,6 +6,8 @@ import sys
 import traceback
 from app.utils.security_utils import encriptar_id
 
+
+
 # --- Diccionario de meses en español ---
 MESES_ES = {
     1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
@@ -38,31 +40,36 @@ def formatear_hora_12h(fecha, hora):
         print("⚠️ Error al formatear hora:", e)
         return hora, fecha
 
-# --- Función para enviar correo vía SendGrid ---
-def enviar_por_sendgrid(destinatario, asunto, html_body):
-    api_key = os.getenv("SENDGRID_API_KEY")
-    if not api_key:
-        print("❌ ERROR: Falta variable SENDGRID_API_KEY en Render.")
+# --- Función para enviar correo vía Resend ---
+def enviar_por_resend(destinatario, asunto, html_body):
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+    if not RESEND_API_KEY:
+        print("❌ ERROR: Falta variable RESEND_API_KEY en Render.")
         sys.stdout.flush()
         return
-    url = "https://api.sendgrid.com/v3/mail/send"
+    url = "https://api.resend.com/emails"
+    
     payload = {
-        "personalizations": [{"to": [{"email": destinatario}]}],
-        "from": {"email": "fronesisstudio2@gmail.com", "name": "Fronesis Studio"},
+        "from": "info@fronesisstudio.fun",   # tu correo profesional
+        "to": [destinatario],
         "subject": asunto,
-        "content": [{"type": "text/html", "value": html_body}]
+        "html": html_body
     }
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
+    headers = {
+        "Authorization": f"Bearer {RESEND_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=15)
-        print("📨 SendGrid status:", r.status_code)
+        print("📨 Resend status:", r.status_code)
         if r.status_code >= 400:
             print("❌ Error al enviar correo:", r.text)
         else:
             print("✅ Correo enviado correctamente.")
     except requests.exceptions.RequestException as e:
-        print("❌ ERROR de conexión con SendGrid:", e)
-    sys.stdout.flush()
+        print("❌ ERROR de conexión con Resend:", e)
 
 # --- Función principal ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
@@ -212,9 +219,9 @@ color:#ffffff !important;text-align:center;">
 </html>
 """
 
-        print("📨 Enviando correo mediante SendGrid...")
+        print("📨 Enviando correo mediante resend...")
         sys.stdout.flush()
-        enviar_por_sendgrid(destinatario, asunto, html_body)
+        enviar_por_resend(destinatario, asunto, html_body)
 
     except Exception as e:
         print("❌ ERROR durante el envío del correo:", e)
