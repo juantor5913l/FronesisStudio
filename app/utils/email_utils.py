@@ -119,7 +119,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         conf = tipos.get(tipo, tipos['nueva'])
         asunto, titulo, descripcion, gradiente = conf["asunto"], conf["titulo"], conf["descripcion"], conf["gradiente"]
 
-        base_url = "https://fronesisstudio.onrender.com"
+        base_url = "https://www.fronesisstudio.fun"
 
         # --- BOTONES OPTIMIZADOS PARA IPHONE Y OUTLOOK ---
         enlaces_html = ""
