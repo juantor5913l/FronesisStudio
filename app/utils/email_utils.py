@@ -169,9 +169,6 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{asunto}</title>
-
-
-
 </head>
 
 <body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#0f0f0f;color:#fff;text-align:center;">
@@ -211,8 +208,6 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 </body>
 </html>
 """
-
-
 
         print("📨 Enviando correo mediante Resend...")
         enviar_por_resend(destinatario, asunto, html_body)
