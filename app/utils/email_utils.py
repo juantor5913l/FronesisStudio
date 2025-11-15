@@ -126,36 +126,38 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:25px 0;">
+            <table role="presentation" width="100%" style="margin-top:20px;">
+  <tr>
+    <!-- BOTÓN REAGENDAR -->
+    <td align="center" width="50%" style="padding-right:5px;">
+      <a href="{base_url}/cliente/reagendar/{token}"
+        style="display:block; background:{gradiente}; padding:1px; border-radius:8px; text-decoration:none;">
+        <table role="presentation" width="100%">
+          <tr>
+            <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
+              <span style="color:#fff; font-weight:700; font-size:14px;">🔁 Reagendar</span>
+            </td>
+          </tr>
+        </table>
+      </a>
+    </td>
 
-            <div style="margin-top:20px; text-align:center; display:flex; gap:12px;">
+    <!-- BOTÓN CANCELAR -->
+    <td align="center" width="50%" style="padding-left:5px;">
+      <a href="{base_url}/cliente/cancelar_cita/{token}"
+        style="display:block; background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b); padding:1px; border-radius:8px; text-decoration:none;">
+        <table role="presentation" width="100%">
+          <tr>
+            <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
+              <span style="color:#fff; font-weight:700; font-size:14px;">🚫 Cancelar</span>
+            </td>
+          </tr>
+        </table>
+      </a>
+    </td>
+  </tr>
+</table>
 
-              <!-- BOTÓN REAGENDAR -->
-              <a href="{base_url}/cliente/reagendar/{token}"
-                 style="flex:1;background:{gradiente};padding:1px;border-radius:8px;
-                        display:inline-block;text-decoration:none !important;">
-
-                <div style="background:#000;border-radius:8px;padding:12px 0;">
-                  <span style="color:#fff !important;font-weight:700;font-size:14px;display:block;">
-                    🔁 Reagendar
-                  </span>
-                </div>
-              </a>
-
-              <!-- BOTÓN CANCELAR -->
-              <a href="{base_url}/cliente/cancelar_cita/{token}"
-                 style="flex:1;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);
-                        padding:1px;border-radius:8px;display:inline-block;
-                        text-decoration:none !important;">
-
-                <div style="background:#000;border-radius:8px;padding:12px 0;">
-                  <span style="color:#fff !important;font-weight:700;font-size:14px;display:block;">
-                    🚫 Cancelar
-                  </span>
-                </div>
-              </a>
-
-            </div>
             """
 
         # --- HTML FINAL ---
