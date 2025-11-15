@@ -166,9 +166,16 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{asunto}</title>
 </head>
+<style>
+  a, a:link, a:visited, a span {
+    color:#ffffff !important;
+    text-decoration:none !important;
+  }
+</style>
 
 <body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#0f0f0f;color:#fff;text-align:center;">
 
