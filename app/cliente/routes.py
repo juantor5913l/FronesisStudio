@@ -107,7 +107,8 @@ def horas_disponibles():
 def seleccionar_hora():
     from app import db, models
     from app.models import HoraRestringida
-
+    tz = pytz.timezone("America/Bogota")
+    ahora = datetime.now(tz)
     if request.method == 'POST':
         hora = request.form.get('hora')
         if not hora:
@@ -120,7 +121,7 @@ def seleccionar_hora():
 
         fecha_cita = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         hora_cita = datetime.strptime(hora, "%H:%M").time()
-        ahora = datetime.now()
+        ahora = datetime.now(tz)
 
         if fecha_cita == ahora.date() and hora_cita <= ahora.time():
             flash('No puedes agendar una hora que ya ha pasado.')
@@ -148,7 +149,7 @@ def seleccionar_hora():
 
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
-    ahora = datetime.now()
+    ahora = datetime.now(tz)
     if fecha == ahora.date():
         horas_disponibles = [h for h in horas_disponibles if datetime.strptime(h, "%H:%M").time() > ahora.time()]
 
@@ -354,7 +355,7 @@ def reagendar_hora(token):
     ]
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
-    ahora = datetime.now()
+    ahora = datetime.now(tz)
     fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
     if fecha_dt.date() == ahora.date():
         horas_disponibles = [h for h in horas_disponibles if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora]
@@ -378,6 +379,8 @@ def reagendar_hora(token):
 def reagendar_confirmar(token):
     from app import db, models
     cita_id = desencriptar_id(token)
+    tz = pytz.timezone("America/Bogota")
+    ahora = datetime.now(tz)
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
@@ -391,7 +394,7 @@ def reagendar_confirmar(token):
 
     if request.method == 'POST':
         nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
-        ahora = datetime.now()
+        ahora = datetime.now(tz)
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
