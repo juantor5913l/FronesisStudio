@@ -218,6 +218,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 """
 
 
+
         print("📨 Enviando correo mediante Resend...")
         enviar_por_resend(destinatario, asunto, html_body)
 
