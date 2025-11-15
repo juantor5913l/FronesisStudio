@@ -45,16 +45,9 @@ def enviar_recordatorios_citas(app, db, Cita, enviar_correo_con_invitacion):
     with app.app_context():
         try:
             ahora = datetime.now()
+            limite_inferior = ahora + timedelta(hours=1, minutes=55)
+            limite_superior = ahora + timedelta(hours=2, minutes=5)
 
-            # ⚙️ Cambia esto a False cuando pases a producción
-            MODO_PRUEBA = True
-
-            if MODO_PRUEBA:
-                limite_inferior = ahora
-                limite_superior = ahora + timedelta(minutes=120)
-            else:
-                limite_inferior = ahora + timedelta(hours=1, minutes=55)
-                limite_superior = ahora + timedelta(hours=2, minutes=5)
 
             print("🔍 Hora actual:", ahora)
             print("🔍 Rango de búsqueda:", limite_inferior, "→", limite_superior)
