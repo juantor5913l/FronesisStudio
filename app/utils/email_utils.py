@@ -6,8 +6,6 @@ import sys
 import traceback
 from app.utils.security_utils import encriptar_id
 
-
-
 # --- Diccionario de meses en español ---
 MESES_ES = {
     1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
@@ -15,42 +13,48 @@ MESES_ES = {
     9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
 }
 
-# --- Función para formatear fecha en español ---
+# --- Formatear fecha en español ---
 def formatear_fecha(fecha_dt):
     dia = fecha_dt.day
     mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
     año = fecha_dt.year
     return f"{dia} de {mes} de {año}"
 
-# --- Función para formatear hora en 12h ---
+# --- Formatear hora en 12h ---
 def formatear_hora_12h(fecha, hora):
     try:
         tz = pytz.timezone("America/Bogota")
+
+        # Si no trae segundos → se agregan
         if len(hora.split(":")) == 2:
             hora = f"{hora}:00"
+
         dt = tz.localize(datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M:%S"))
+
         hora_24 = dt.hour
         minuto = dt.minute
+
         sufijo = "AM" if hora_24 < 12 else "PM"
         hora_12 = hora_24 % 12 or 12
-        hora_formateada = f"{hora_12}:{minuto:02d} {sufijo}"
-        fecha_formateada = formatear_fecha(dt).capitalize()
-        return hora_formateada, fecha_formateada
+
+        return f"{hora_12}:{minuto:02d} {sufijo}", formatear_fecha(dt).capitalize()
+
     except Exception as e:
         print("⚠️ Error al formatear hora:", e)
         return hora, fecha
 
-# --- Función para enviar correo vía Resend ---
+# --- Enviar correo con Resend ---
 def enviar_por_resend(destinatario, asunto, html_body):
     RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
     if not RESEND_API_KEY:
         print("❌ ERROR: Falta variable RESEND_API_KEY en Render.")
-        sys.stdout.flush()
         return
+
     url = "https://api.resend.com/emails"
-    
+
     payload = {
-        "from": "info@fronesisstudio.fun",   # tu correo profesional
+        "from": "Fronesis Studio <info@fronesisstudio.fun>",
         "to": [destinatario],
         "subject": asunto,
         "html": html_body
@@ -64,19 +68,23 @@ def enviar_por_resend(destinatario, asunto, html_body):
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=15)
         print("📨 Resend status:", r.status_code)
+
         if r.status_code >= 400:
             print("❌ Error al enviar correo:", r.text)
         else:
             print("✅ Correo enviado correctamente.")
+
     except requests.exceptions.RequestException as e:
         print("❌ ERROR de conexión con Resend:", e)
 
 # --- Función principal ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
     try:
+        # Formato de hora y fecha
         if fecha and hora:
             hora, fecha = formatear_hora_12h(fecha, hora)
 
+        # Configuración por tipo de cita
         tipos = {
             'nueva': {
                 "asunto": "✅ Confirmación de tu cita en Fronesis Studio",
@@ -99,42 +107,55 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
             'cancelada_admin': {
                 "asunto": "⚠️ Tu cita ha sido cancelada por el barbero",
                 "titulo": "Cancelación por parte del estudio",
-                "descripcion": ("Lamentamos informarte que tu cita ha sido cancelada, "
-                                "ya que al barbero se le presentó un imprevisto para ese día. "
-                                "Puedes reagendar en otro horario disponible."),
+                "descripcion": (
+                    "Lamentamos informarte que tu cita ha sido cancelada, "
+                    "ya que al barbero se le presentó un imprevisto. "
+                    "Puedes reagendar en otro horario disponible."
+                ),
                 "gradiente": "linear-gradient(90deg,#ff8c00,#ff4b2b,#c0392b)"
             },
             'recordatorio': {
                 "asunto": "⏰ Recordatorio de tu cita - Fronesis Studio",
                 "titulo": "Recordatorio de tu cita",
-                "descripcion": "Tu cita se aproxima. Te esperamos en Frónesis Studio dentro de 2 horas.",
+                "descripcion": "Tu cita se aproxima. Te esperamos en dos horas.",
                 "gradiente": "linear-gradient(90deg,#007bff,#6f00ff,#00c2ff)"
             }
         }
 
         conf = tipos.get(tipo, tipos['nueva'])
-        asunto, titulo, descripcion, gradiente = conf["asunto"], conf["titulo"], conf["descripcion"], conf["gradiente"]
+        asunto, titulo, descripcion, gradiente = (
+            conf["asunto"],
+            conf["titulo"],
+            conf["descripcion"],
+            conf["gradiente"]
+        )
 
-        base_url = "https://fronesisstudio.onrender.com"
+        # Botones (si la cita NO está cancelada)
         enlaces_html = ""
+        base_url = "https://fronesisstudio.onrender.com"
+
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;">
-            <div style="display:flex;justify-content:center;align-items:center;margin-top:20px;">
-              <a href='{base_url}/cliente/reagendar/{token}'
-                 style="display:inline-block;width:47%;margin-right:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;
-                 background-color:#007bff; background-image:-webkit-linear-gradient(90deg,#007bff,#6f00ff,#00c2ff); background-image:{gradiente};">
-                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🔁 Reagendar</span>
+            <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:25px 0;">
+            <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
+
+              <a href="{base_url}/cliente/reagendar/{token}"
+                 style="flex:1;padding:12px 0;border-radius:8px;font-weight:700;
+                 background:{gradiente};color:#fff;text-decoration:none;display:block;">
+                 🔁 Reagendar
               </a>
-              <a href='{base_url}/cliente/cancelar_cita/{token}'
-                 style="display:inline-block;width:47%;margin-left:6px;padding:1px 1px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;color:#fff;border-radius:8px;
-                 background-color:#ff4b2b; background-image:-webkit-linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b); background-image:{gradiente};">
-                  <span style='display:block;background:#000;border-radius:8px;padding:9px 0;margin:1px;'>🚫 Cancelar</span>
+
+              <a href="{base_url}/cliente/cancelar_cita/{token}"
+                 style="flex:1;padding:12px 0;border-radius:8px;font-weight:700;
+                 background:{gradiente};color:#fff;text-decoration:none;display:block;">
+                 🚫 Cancelar
               </a>
+
             </div>
             """
 
+        # --- HTML del correo ---
         html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -143,87 +164,55 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{asunto}</title>
   <style>
-    a, a:link, a:visited, a span, p span, td span {{
+    * {{
       color: #ffffff !important;
-      text-decoration: none !important;
-    }}
-    span, p, div, td {{
-      color: #ffffff !important;
-    }}
-    @media (max-width:480px) {{
-      .boton-responsive {{
-        display:block !important;
-        width:100% !important;
-        margin:8px 0 !important;
-      }}
     }}
   </style>
 </head>
-<body style="margin:0;padding:0;font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,rgba(15,15,15,0.95),rgba(25,25,25,0.98));
-color:#ffffff !important;text-align:center;">
 
-  <div style="margin:40px auto;max-width:420px;width:92%;border-radius:18px;
-  background:rgba(255,255,255,0.05);box-shadow:0 4px 25px rgba(0,0,0,0.5);
-  padding:30px 22px;">
+<body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;
+background:#0f0f0f;color:#ffffff;text-align:center;">
 
-    <!-- LOGO EN CÍRCULO -->
-    <table role="presentation" width="90" height="90" align="center" cellspacing="0" cellpadding="0" border="0" 
-          style="border-collapse:collapse;border-radius:50%;
-          background-color:#007bff; 
-          background-image:-webkit-linear-gradient(90deg,{gradiente});
-          background-image:{gradiente};
-          margin:0 auto 20px auto;">
-      <tr>
-        <td align="center" valign="middle" 
-            style="border-radius:50%;background:#0f0f0f;padding:3px;">
-          <img src="../static/img/favicon.png" alt="Logo Fronesis" width="84" height="84" 
-               style="border-radius:50%;display:block;">
-        </td>
-      </tr>
-    </table>
+  <div style="margin:40px auto;max-width:420px;background:rgba(255,255,255,0.05);
+       padding:30px 22px;border-radius:18px;box-shadow:0 4px 25px rgba(0,0,0,0.5);">
 
-    <!-- TÍTULO -->
+    <img src="https://fronesisstudio.fun/static/img/favicon.png"
+         width="100" height="100"
+         style="border-radius:50%;margin-bottom:20px;">
+
     <h2 style="font-size:22px;font-weight:600;margin:0 0 10px 0;
-    background-color:#007bff;
-    background-image:-webkit-linear-gradient(90deg,{gradiente});
-    background-image:{gradiente};
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;">
-      {titulo}, {nombre}
+        background:{gradiente};
+        -webkit-background-clip:text;background-clip:text;
+        -webkit-text-fill-color:transparent;">
+        {titulo}, {nombre}
     </h2>
 
-    <p style="color:#ffffff;font-size:14px;margin:0 0 25px 0;">{descripcion}</p>
+    <p style="font-size:14px;margin-bottom:25px;">{descripcion}</p>
 
-    <div style="border:1px solid rgba(255,255,255,0.1);border-radius:14px;
-    padding:20px;text-align:left;color:#ffffff !important;">
-      <h3 style="text-align:center;font-size:17px;margin:0 0 14px 0;
-      background-color:#007bff;
-      background-image:-webkit-linear-gradient(90deg,{gradiente});
-      background-image:{gradiente};
-      -webkit-background-clip:text;background-clip:text;
-      -webkit-text-fill-color:transparent;">
+    <div style="border:1px solid rgba(255,255,255,0.1);
+        padding:20px;border-radius:14px;text-align:left;">
+
+      <h3 style="text-align:center;font-size:17px;">
         Reserva Estudio<br>
         <span style="font-weight:800;font-size:19px;">FRONESIS</span>
       </h3>
 
-      <p style="font-size:14px;margin:10px 0;">👤 {nombre}</p>
-      <p style="font-size:14px;margin:10px 0;">⏱ {hora}</p>
-      <p style="font-size:14px;margin:10px 0;">📅 {fecha}</p>
-      <p style="font-size:14px;margin:10px 0;">📍 Carerra 98A #131-05 Aures</p>
-      <br>
+      <p>👤 {nombre}</p>
+      <p>⏱ {hora}</p>
+      <p>📅 {fecha}</p>
+      <p>📍 Carrera 98A #131-05 — Aures</p>
+
       {enlaces_html}
     </div>
   </div>
+
 </body>
 </html>
 """
 
-        print("📨 Enviando correo mediante resend...")
-        sys.stdout.flush()
+        print("📨 Enviando correo mediante Resend...")
         enviar_por_resend(destinatario, asunto, html_body)
 
     except Exception as e:
         print("❌ ERROR durante el envío del correo:", e)
         traceback.print_exc()
-        sys.stdout.flush()
