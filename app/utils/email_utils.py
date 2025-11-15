@@ -13,19 +13,18 @@ MESES_ES = {
     9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
 }
 
-# --- Formatear fecha en español ---
+# --- Formatear fecha ---
 def formatear_fecha(fecha_dt):
     dia = fecha_dt.day
     mes = MESES_ES.get(fecha_dt.month, fecha_dt.month)
     año = fecha_dt.year
     return f"{dia} de {mes} de {año}"
 
-# --- Formatear hora en 12h ---
+# --- Formatear hora 12h ---
 def formatear_hora_12h(fecha, hora):
     try:
         tz = pytz.timezone("America/Bogota")
 
-        # Si no trae segundos → se agregan
         if len(hora.split(":")) == 2:
             hora = f"{hora}:00"
 
@@ -38,7 +37,6 @@ def formatear_hora_12h(fecha, hora):
         hora_12 = hora_24 % 12 or 12
 
         return f"{hora_12}:{minuto:02d} {sufijo}", formatear_fecha(dt).capitalize()
-
     except Exception as e:
         print("⚠️ Error al formatear hora:", e)
         return hora, fecha
@@ -73,18 +71,15 @@ def enviar_por_resend(destinatario, asunto, html_body):
             print("❌ Error al enviar correo:", r.text)
         else:
             print("✅ Correo enviado correctamente.")
-
     except requests.exceptions.RequestException as e:
         print("❌ ERROR de conexión con Resend:", e)
 
-# --- Función principal ---
+# --- Enviar correo principal ---
 def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cita):
     try:
-        # Formato de hora y fecha
         if fecha and hora:
             hora, fecha = formatear_hora_12h(fecha, hora)
 
-        # Configuración por tipo de cita
         tipos = {
             'nueva': {
                 "asunto": "✅ Confirmación de tu cita en Fronesis Studio",
@@ -109,8 +104,7 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
                 "titulo": "Cancelación por parte del estudio",
                 "descripcion": (
                     "Lamentamos informarte que tu cita ha sido cancelada, "
-                    "ya que al barbero se le presentó un imprevisto. "
-                    "Puedes reagendar en otro horario disponible."
+                    "ya que al barbero se le presentó un imprevisto."
                 ),
                 "gradiente": "linear-gradient(90deg,#ff8c00,#ff4b2b,#c0392b)"
             },
@@ -123,55 +117,58 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
         }
 
         conf = tipos.get(tipo, tipos['nueva'])
-        asunto, titulo, descripcion, gradiente = (
-            conf["asunto"],
-            conf["titulo"],
-            conf["descripcion"],
-            conf["gradiente"]
-        )
+        asunto, titulo, descripcion, gradiente = conf["asunto"], conf["titulo"], conf["descripcion"], conf["gradiente"]
 
-        # Botones (si la cita NO está cancelada)
-        enlaces_html = ""
         base_url = "https://fronesisstudio.onrender.com"
 
+        # --- BOTONES OPTIMIZADOS PARA IPHONE Y OUTLOOK ---
+        enlaces_html = ""
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
             <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:25px 0;">
-            <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
 
+            <div style="margin-top:20px; text-align:center; display:flex; gap:12px;">
+
+              <!-- BOTÓN REAGENDAR -->
               <a href="{base_url}/cliente/reagendar/{token}"
-                 style="flex:1;padding:12px 0;border-radius:8px;font-weight:700;
-                 background:{gradiente};color:#fff;text-decoration:none;display:block;">
-                 🔁 Reagendar
+                 style="flex:1;background:{gradiente};padding:1px;border-radius:8px;
+                        display:inline-block;text-decoration:none !important;">
+
+                <div style="background:#000;border-radius:8px;padding:12px 0;">
+                  <span style="color:#fff !important;font-weight:700;font-size:14px;display:block;">
+                    🔁 Reagendar
+                  </span>
+                </div>
               </a>
 
+              <!-- BOTÓN CANCELAR -->
               <a href="{base_url}/cliente/cancelar_cita/{token}"
-                 style="flex:1;padding:12px 0;border-radius:8px;font-weight:700;
-                 background:{gradiente};color:#fff;text-decoration:none;display:block;">
-                 🚫 Cancelar
+                 style="flex:1;background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b);
+                        padding:1px;border-radius:8px;display:inline-block;
+                        text-decoration:none !important;">
+
+                <div style="background:#000;border-radius:8px;padding:12px 0;">
+                  <span style="color:#fff !important;font-weight:700;font-size:14px;display:block;">
+                    🚫 Cancelar
+                  </span>
+                </div>
               </a>
 
             </div>
             """
 
-        # --- HTML del correo ---
+        # --- HTML FINAL ---
         html_body = f"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{asunto}</title>
-  <style>
-    * {{
-      color: #ffffff !important;
-    }}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{asunto}</title>
 </head>
 
-<body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;
-background:#0f0f0f;color:#ffffff;text-align:center;">
+<body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#0f0f0f;color:#fff;text-align:center;">
 
   <div style="margin:40px auto;max-width:420px;background:rgba(255,255,255,0.05);
        padding:30px 22px;border-radius:18px;box-shadow:0 4px 25px rgba(0,0,0,0.5);">
@@ -180,7 +177,7 @@ background:#0f0f0f;color:#ffffff;text-align:center;">
          width="100" height="100"
          style="border-radius:50%;margin-bottom:20px;">
 
-    <h2 style="font-size:22px;font-weight:600;margin:0 0 10px 0;
+    <h2 style="font-size:22px;font-weight:600;margin-bottom:10px;
         background:{gradiente};
         -webkit-background-clip:text;background-clip:text;
         -webkit-text-fill-color:transparent;">
@@ -189,9 +186,7 @@ background:#0f0f0f;color:#ffffff;text-align:center;">
 
     <p style="font-size:14px;margin-bottom:25px;">{descripcion}</p>
 
-    <div style="border:1px solid rgba(255,255,255,0.1);
-        padding:20px;border-radius:14px;text-align:left;">
-
+    <div style="border:1px solid rgba(255,255,255,0.1);padding:20px;border-radius:14px;text-align:left;">
       <h3 style="text-align:center;font-size:17px;">
         Reserva Estudio<br>
         <span style="font-weight:800;font-size:19px;">FRONESIS</span>
@@ -204,6 +199,7 @@ background:#0f0f0f;color:#ffffff;text-align:center;">
 
       {enlaces_html}
     </div>
+
   </div>
 
 </body>
