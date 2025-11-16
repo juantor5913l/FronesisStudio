@@ -447,6 +447,7 @@ def reagendar_confirmar(token):
         cita.hora = datetime.strptime(hora, '%H:%M').time()
         cita.estado = "activa"
         db.session.commit()
+        print(f"Cita {cita.id} reagendada para {cita.fecha} a las {cita.hora}.")
         enviar_correo_con_invitacion(
             id_cita=cita_id,
             destinatario=destinatario,
@@ -454,8 +455,9 @@ def reagendar_confirmar(token):
             fecha=fecha,
             hora=hora,
             tipo='reagendada'
+            print(f"Correo de reprogramación enviado a {cita.correo_electronico}.")
         )
-        
+
         session.pop('nueva_fecha', None)
         session.pop('nueva_hora', None)
 
