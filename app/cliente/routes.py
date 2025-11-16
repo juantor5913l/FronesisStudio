@@ -430,35 +430,39 @@ def reagendar_confirmar(token):
         return redirect(url_for('cliente.reagendar_fecha', token=token))
 
     if request.method == 'POST':
-    nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+        nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M").replace(tzinfo=tz)
 
-    if nueva_fecha_hora <= ahora + timedelta(hours=3):
-        flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
-        return redirect(url_for('cliente.reagendar_hora', token=token))
+        if nueva_fecha_hora <= ahora + timedelta(hours=3):
+            flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
+            return redirect(url_for('cliente.reagendar_hora', token=token))
 
-    # GUARDAR CAMBIOS
-    cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-    cita.hora = datetime.strptime(hora, '%H:%M').time()
-    cita.estado = "activa"
-    db.session.commit()
+        # GUARDAR CAMBIOS
+        cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+        cita.hora = datetime.strptime(hora, '%H:%M').time()
+        cita.estado = "activa"
+        db.session.commit()
 
-    # FORMATEAR FECHA Y HORA CORRECTAMENTE
-    fecha_formateada = formatear_fecha(cita.fecha)
-    hora_formateada = cita.hora.strftime("%I:%M %p")
+        # FORMATEAR FECHA Y HORA CORRECTAMENTE
+        fecha_formateada = formatear_fecha(cita.fecha)
+        hora_formateada = cita.hora.strftime("%I:%M %p")
 
-    enviar_correo_con_invitacion(
-        id_cita=cita.id,
-        destinatario=cita.correo_electronico,
-        nombre=cita.nombre,
-        fecha=fecha_formateada,   # ← FORMATO CORRECTO
-        hora=hora_formateada,     # ← FORMATO CORRECTO
-        tipo='reagendada'
-    )
+        enviar_correo_con_invitacion(
+            id_cita=cita.id,
+            destinatario=cita.correo_electronico,
+            nombre=cita.nombre,
+            fecha=fecha_formateada,   # ← FORMATO CORRECTO
+            hora=hora_formateada,     # ← FORMATO CORRECTO
+            tipo='reagendada'
+        )
 
-    session.pop('nueva_fecha', None)
-    session.pop('nueva_hora', None)
+        session.pop('nueva_fecha', None)
+        session.pop('nueva_hora', None)
 
-    return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
+        return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
+
+
+
+
 
 # -----------------------------------------------------------
 # 🔹 CONFIRMACIÓN FINAL
