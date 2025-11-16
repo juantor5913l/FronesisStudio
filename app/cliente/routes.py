@@ -270,6 +270,9 @@ def datos_cita():
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 1: Seleccionar nueva fecha)
 # -----------------------------------------------------------
+from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta
+
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 1: Seleccionar nueva fecha)
 # -----------------------------------------------------------
@@ -282,6 +285,7 @@ def reagendar_fecha(token):
         return redirect(url_for('cliente.calendario_view'))
 
     cita = db.session.query(models.Cita).get_or_404(cita_id)
+    
     if cita.hora:
         try:
             hora = cita.hora.hour
@@ -301,7 +305,7 @@ def reagendar_fecha(token):
             return redirect(url_for('cliente.reagendar_fecha', token=token))
 
         nueva_fecha = datetime.strptime(nueva_fecha_str, '%Y-%m-%d').date()
-        hoy = datetime.now().date()
+        hoy = datetime.now(ZoneInfo("America/Bogota")).date()
         limite = hoy + timedelta(days=30)
 
         if nueva_fecha < hoy:
@@ -316,6 +320,7 @@ def reagendar_fecha(token):
 
     fecha_legible = formatear_fecha(cita.fecha)
     return render_template('cliente/reagendar_fecha.html', cita=cita, fecha_legible=fecha_legible, token=token)
+
 
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 2: Seleccionar nueva hora)
@@ -339,7 +344,14 @@ def reagendar_hora(token):
             flash('Debe seleccionar una hora válida.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
 
-        cita_existente = db.session.query(models.Cita).filter_by(fecha=fecha, hora=nueva_hora).first()
+        # VALIDAR HORA OCUPADA
+        fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+        cita_existente = (
+            db.session.query(models.Cita)
+            .filter_by(fecha=fecha_date, hora=datetime.strptime(nueva_hora, "%H:%M").time())
+            .first()
+        )
+
         if cita_existente and cita_existente.id != cita.id:
             flash('🚫 Esa hora ya está ocupada.', 'danger')
             return redirect(url_for('cliente.reagendar_hora', token=token))
@@ -347,37 +359,52 @@ def reagendar_hora(token):
         session['nueva_hora'] = nueva_hora
         return redirect(url_for('cliente.reagendar_confirmar', token=token))
 
-    from app.models import HoraRestringida
-    citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha).all()
+    # HORAS OCUPADAS
+    fecha_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+    citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha_date).all()
     horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_existentes]
 
-    bloqueos = db.session.query(HoraRestringida.hora).filter(HoraRestringida.fecha == fecha).all()
+    from app.models import HoraRestringida
+    bloqueos = db.session.query(HoraRestringida.hora).filter(HoraRestringida.fecha == fecha_date).all()
     horas_bloqueadas = [h.hora.strftime('%H:%M') for h in bloqueos]
 
+    # HORAS DISPONIBLES
     todas_las_horas = [
-        '07:00', '07:45', '08:30', '09:45', '10:30', '11:15',
-        '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
-        '18:00', '18:45','19:30', '20:15', '21:00','21:00','21:20','21:25','21:27','21:30','22:30','23:15',
-        '00:00', '00:45',
+        '07:00','07:45','08:30','09:45','10:30','11:15','12:45','13:30','14:15',
+        '15:45','16:30','17:15','18:00','18:45','19:30','20:15','21:00','21:20',
+        '21:25','21:27','21:30','22:30','23:15','00:00','00:45'
     ]
-    horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
-    ahora = datetime.now(ZoneInfo("America/Bogota"))
-    fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+    horas_disponibles = [
+        h for h in todas_las_horas 
+        if h not in horas_ocupadas and h not in horas_bloqueadas
+    ]
+
+    # FILTRAR HORAS DEL MISMO DÍA
+    tz = ZoneInfo("America/Bogota")
+    ahora = datetime.now(tz)
+    fecha_dt = datetime.strptime(fecha, "%Y-%m-%d").replace(tzinfo=tz)
+
     if fecha_dt.date() == ahora.date():
-        horas_disponibles = [h for h in horas_disponibles if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora]
+        horas_disponibles = [
+            h for h in horas_disponibles
+            if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M").replace(tzinfo=tz) > ahora
+        ]
 
-    fecha_legible = formatear_fecha(fecha_dt)
-    nombre_dia_str = nombre_dia_func(fecha_dt)
+    fecha_legible = formatear_fecha(fecha_dt.date())
+    nombre_dia_str = nombre_dia_func(fecha_dt.date())
     hora_agendada_anterior = cita.hora.strftime('%H:%M')
 
-    return render_template('cliente/reagendar_hora.html',
-                           cita=cita,
-                           fecha=fecha,
-                           fecha_legible=fecha_legible,
-                           horas_disponibles=horas_disponibles,
-                           nombre_dia=nombre_dia_str,
-                           hora_agendada_anterior=hora_agendada_anterior)
+    return render_template(
+        'cliente/reagendar_hora.html',
+        cita=cita,
+        fecha=fecha,
+        fecha_legible=fecha_legible,
+        horas_disponibles=horas_disponibles,
+        nombre_dia=nombre_dia_str,
+        hora_agendada_anterior=hora_agendada_anterior
+    )
+
 
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 3: Confirmar y guardar)
@@ -385,9 +412,11 @@ def reagendar_hora(token):
 @cliente_blueprint.route('/reagendar/<token>/confirmar', methods=['GET', 'POST'])
 def reagendar_confirmar(token):
     from app import db, models
+
     cita_id = desencriptar_id(token)
-    tz = pytz.timezone("America/Bogota")
-    ahora = datetime.now(ZoneInfo("America/Bogota"))
+    tz = ZoneInfo("America/Bogota")
+    ahora = datetime.now(tz)
+
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
@@ -400,40 +429,49 @@ def reagendar_confirmar(token):
         return redirect(url_for('cliente.reagendar_fecha', token=token))
 
     if request.method == 'POST':
-        nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
-        ahora = datetime.now(ZoneInfo("America/Bogota"))
+        nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
 
-    cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-    cita.hora = datetime.strptime(hora, '%H:%M').time()
-    cita.estado = "activa"
-    db.session.commit()
+        # GUARDAR CAMBIOS
+        cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+        cita.hora = datetime.strptime(hora, '%H:%M').time()
+        cita.estado = "activa"
+        db.session.commit()
 
-    enviar_correo_con_invitacion(
-        id_cita=cita.id,
-        destinatario=cita.correo_electronico,
-        nombre=cita.nombre,
-        fecha=str(cita.fecha),
-        hora=str(cita.hora),
-        tipo='reagendada'
-    )
+        enviar_correo_con_invitacion(
+            id_cita=cita.id,
+            destinatario=cita.correo_electronico,
+            nombre=cita.nombre,
+            fecha=str(cita.fecha),
+            hora=str(cita.hora),
+            tipo='reagendada'
+        )
 
-    session.pop('nueva_fecha', None)
-    session.pop('nueva_hora', None)
+        session.pop('nueva_fecha', None)
+        session.pop('nueva_hora', None)
 
-    return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
-    
+        return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
+
+    return render_template('cliente/confirmar_reagendar.html', cita=cita)
+
+
+# -----------------------------------------------------------
+# 🔹 CONFIRMACIÓN FINAL
+# -----------------------------------------------------------
 @cliente_blueprint.route('/confirmacion_reagendada/<token>')
 def confirmacion_reagendada(token):
     from app import db, models
     cita_id = desencriptar_id(token)
+
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-        
+
     cita = db.session.query(models.Cita).get_or_404(cita_id)
+
     if cita.hora:
         try:
             hora = cita.hora.hour
@@ -446,7 +484,6 @@ def confirmacion_reagendada(token):
     else:
         cita.hora_am_pm = None
 
-    
     fecha_legible = formatear_fecha(cita.fecha)
 
     return render_template(
