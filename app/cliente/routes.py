@@ -454,7 +454,7 @@ def reagendar_confirmar(token):
             nombre=nombre,
             fecha=fecha,
             hora=hora,
-            tipo='reagendada'
+            tipo='reagendada',
             print(f"Correo de reprogramación enviado a {cita.correo_electronico}.")
         )
 
