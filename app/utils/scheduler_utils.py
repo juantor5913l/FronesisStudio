@@ -62,7 +62,9 @@ def enviar_recordatorios_citas(app, db, Cita, enviar_correo_con_invitacion):
 
             total = 0
             for cita in citas:
-                cita_datetime = datetime.combine(cita.fecha, cita.hora)
+                
+                cita_datetime = datetime.combine(cita.fecha, cita.hora).replace(tzinfo=ZoneInfo("America/Bogota"))
+
                 print(f"⏰ Cita {cita.id}: {cita.fecha} {cita.hora} | recordatorio_enviado={cita.recordatorio_enviado}")
 
                 # 🔹 Verificar que esté dentro del rango y no se haya enviado
