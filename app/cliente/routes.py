@@ -413,7 +413,6 @@ def reagendar_hora(token):
 @cliente_blueprint.route('/reagendar/<token>/confirmar', methods=['GET', 'POST'])
 def reagendar_confirmar(token):
     from app import db, models
-
     cita_id = desencriptar_id(token)
     tz = ZoneInfo("America/Bogota")
     ahora = datetime.now(tz)
@@ -445,15 +444,14 @@ def reagendar_confirmar(token):
         # GUARDAR CAMBIOS
         cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
         cita.hora = datetime.strptime(hora, '%H:%M').time()
-        cita.estado = "activa"
         db.session.commit()
         print(f"Cita {cita.id} reagendada para {cita.fecha} a las {cita.hora}.")
         enviar_correo_con_invitacion(
             id_cita=cita_id,
             destinatario=destinatario,
             nombre=nombre,
-            fecha=fecha,
-            hora=hora,
+            fecha=str(cita.fecha),
+            hora=str(cita.hora),
             tipo='reagendada'
         )
 
@@ -461,17 +459,6 @@ def reagendar_confirmar(token):
         session.pop('nueva_hora', None)
 
         return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
-
-    # -----------------------------
-    # GET → Mostrar pantalla previa
-    # -----------------------------
-    fecha_legible = formatear_fecha(cita.fecha)
-
-    return render_template(
-        'cliente/confirmacion_reagendada.html',
-        cita=cita,
-        fecha_legible=fecha_legible
-    )
 
 # -----------------------------------------------------------
 # 🔹 CONFIRMACIÓN FINAL
