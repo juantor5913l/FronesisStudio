@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-
+import pytz
 def marcar_citas_como_completadas(app, db, Cita):
     """Marca automáticamente como completadas las citas cuya fecha y hora ya pasaron."""
     with app.app_context():
@@ -44,7 +44,8 @@ def enviar_recordatorios_citas(app, db, Cita, enviar_correo_con_invitacion):
     """
     with app.app_context():
         try:
-            ahora = datetime.now()
+            tz = pytz.timezone("America/Bogota")
+            ahora = datetime.now(tz)
             limite_inferior = ahora + timedelta(hours=1, minutes=55)
             limite_superior = ahora + timedelta(hours=2, minutes=5)
 
