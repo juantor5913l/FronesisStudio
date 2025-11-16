@@ -267,9 +267,7 @@ def datos_cita():
                            nombre_dia=nombre_dia_str)
 
 
-# -----------------------------------------------------------
-# 🔹 REAGENDAR CITA (PASO 1: Seleccionar nueva fecha)
-# -----------------------------------------------------------
+
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 
@@ -485,11 +483,11 @@ def confirmacion_reagendada(token):
 
     if cita.hora:
         try:
-            hora = cita.hora.hour
-            minuto = cita.hora.minute
+            h = cita.hora.hour
+            m = cita.hora.minute
             sufijo = "AM" if hora < 12 else "PM"
-            hora_12 = hora % 12 or 12
-            cita.hora_am_pm = f"{hora_12}:{minuto:02d} {sufijo}"
+            hora_12 = h % 12 or 12
+            cita.hora_am_pm = f"{h12}:{m:02d} {sufijo}"
         except Exception:
             cita.hora_am_pm = str(cita.hora)
     else:
