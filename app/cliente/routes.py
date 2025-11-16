@@ -362,7 +362,7 @@ def reagendar_hora(token):
     ]
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
-    ahora = datetime.now(tz)
+    ahora = datetime.now(ZoneInfo("America/Bogota"))
     fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
     if fecha_dt.date() == ahora.date():
         horas_disponibles = [h for h in horas_disponibles if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora]
@@ -387,7 +387,7 @@ def reagendar_confirmar(token):
     from app import db, models
     cita_id = desencriptar_id(token)
     tz = pytz.timezone("America/Bogota")
-    ahora = datetime.now(tz)
+    ahora = datetime.now(ZoneInfo("America/Bogota"))
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
@@ -401,7 +401,7 @@ def reagendar_confirmar(token):
 
     if request.method == 'POST':
         nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
-        ahora = datetime.now(tz)
+        ahora = datetime.now(ZoneInfo("America/Bogota"))
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
