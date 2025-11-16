@@ -39,11 +39,6 @@ def marcar_citas_como_completadas(app, db, Cita):
 
 
 def enviar_recordatorios_citas(app, db, Cita, enviar_correo_con_invitacion):
-    """
-    Envía recordatorios automáticos antes de la cita.
-    En modo de prueba: 2 minutos antes.
-    En producción: 5 horas antes.
-    """
     with app.app_context():
         try:
 

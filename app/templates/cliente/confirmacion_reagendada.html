@@ -248,37 +248,41 @@
 </head>
 
 <body>
-  <header>
+ <header>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-  </header>
-  <div class="container">
+</header>
+
+<div class="container">
     <div class="check-icon"><i class="fa-solid fa-check"></i></div>
     <h2>¡Tu cita ha sido reagendada exitosamente!</h2>
+
     <p class="mensaje">Estos son los nuevos detalles de tu cita:</p>
+    <p class="mensaje">Recuerda que para cancelar tu cita tienes que hacerlo 3 horas antes</p>
 
     <div class="card">
-      <h3>Reserva Estudio<br><span class="estudio">FRONESIS</span></h3>
+        <h3>Reserva Estudio<br><span class="estudio">FRONESIS</span></h3>
 
-      <div class="info">
-        <p><i class="icon fa-solid fa-user"></i> {{ cita.nombre }} {{ cita.apellido }}</p>
-        <p><i class="icon fa-solid fa-calendar"></i> {{ fecha_legible }}</p>
-        <p><i class="icon fa-solid fa-clock"></i> {{ cita.hora_am_pm}}</p>
-        <p><i class="icon fa-solid fa-phone"></i> {{ cita.telefono }}</p>
-        <p><i class="icon fa-solid fa-envelope"></i> {{ cita.correo_electronico }}</p>
-        <p><i class="icon fa-solid fa-location-dot"></i>Carerra 98A #131-05 Aures</p>
-      </div>
+        <div class="info">
+            <p><i class="icon fa-solid fa-user"></i> {{ cita.nombre }} {{ cita.apellido }}</p>
+            <p><i class="icon fa-solid fa-calendar"></i> {{ fecha_legible }}</p>
+            <p><i class="icon fa-solid fa-clock"></i> {{ cita.hora_am_pm}}</p>
+            <p><i class="icon fa-solid fa-phone"></i> {{ cita.telefono }}</p>
+            <p><i class="icon fa-solid fa-envelope"></i> {{ cita.correo_electronico }}</p>
+            <p><i class="icon fa-solid fa-location-dot"></i> Carerra 98A #131-05 Aures</p>
+        </div>
     </div>
 
-      <button class="btn-volver" onclick="window.location.href='/'">Volver al inicio</button>
-<footer>
-      <h3>Redes sociales</h3>
-      <div class="social-icons">
-        <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
-        <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
-      </div>
-      <div class="footer-bottom">
-        © 2025 Fronesis Studio | Barbería Premium
-      </div>
+    <button class="btn-volver" onclick="window.location.href='/'">Volver al inicio</button>
+
+    <footer>
+        <h3>Redes sociales</h3>
+        <div class="social-icons">
+            <a href="https://www.tiktok.com/@fronesis_studio" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="https://www.instagram.com/fronesis_studio/"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+        <div class="footer-bottom">
+            © 2025 Fronesis Studio | Barbería Premium
+        </div>
     </footer>
   
   </div>

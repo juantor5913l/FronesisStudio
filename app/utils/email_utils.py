@@ -65,7 +65,7 @@ def enviar_por_resend(destinatario, asunto, html_body):
 
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=15)
-        print("📨 Resend status:", r.status_code)
+        print("📨 Resend status:", r.status|_code)
 
         if r.status_code >= 400:
             print("❌ Error al enviar correo:", r.text)
