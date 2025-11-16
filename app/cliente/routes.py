@@ -316,7 +316,7 @@ def reagendar_fecha(token):
             return redirect(url_for('cliente.reagendar_fecha', token=token))
 
         session['nueva_fecha'] = nueva_fecha_str
-        return redirect(url_for('cliente.reagendar_hora', token=token))
+        return redirect(url_for('cliente.reagendar_fecha', token=token))
 
     fecha_legible = formatear_fecha(cita.fecha)
     return render_template('cliente/reagendar_fecha.html', cita=cita, fecha_legible=fecha_legible, token=token)
