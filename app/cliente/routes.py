@@ -456,7 +456,7 @@ def reagendar_confirmar(token):
 
         return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
 
-    return render_template('cliente/confirmar_reagendar.html', cita=cita)
+    return render_template('cliente/confirmacion_reagendada.html', cita=cita)
 
 
 # -----------------------------------------------------------
