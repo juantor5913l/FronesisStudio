@@ -1,7 +1,7 @@
 import app
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session, flash
 from datetime import datetime, timedelta
-import pytz
+
 from app.models import HoraRestringida
 from . import cliente_blueprint
 from app.config import Config
@@ -316,7 +316,7 @@ def reagendar_fecha(token):
             return redirect(url_for('cliente.reagendar_fecha', token=token))
 
         session['nueva_fecha'] = nueva_fecha_str
-        return redirect(url_for('cliente.reagendar_fecha', token=token))
+        return redirect(url_for('cliente.reagendar_hora', token=token))
 
     fecha_legible = formatear_fecha(cita.fecha)
     return render_template('cliente/reagendar_fecha.html', cita=cita, fecha_legible=fecha_legible, token=token)
@@ -325,63 +325,115 @@ def reagendar_fecha(token):
 # -----------------------------------------------------------
 # 🔹 REAGENDAR CITA (PASO 2: Seleccionar nueva hora)
 # -----------------------------------------------------------
+@cliente_blueprint.route('/reagendar/<token>/hora', methods=['GET', 'POST'])
+def reagendar_hora(token):
+    from app import db, models
+    cita_id = desencriptar_id(token)
+    if not cita_id:
+        flash('Token inválido o expirado.', 'danger')
+        return redirect(url_for('cliente.calendario_view'))
+    cita = db.session.query(models.Cita).get_or_404(cita_id)
+
+    fecha = session.get('nueva_fecha')
+    if not fecha:
+        return redirect(url_for('cliente.reagendar_fecha', token=token))
+
+    if request.method == 'POST':
+        nueva_hora = request.form.get('hora')
+        if not nueva_hora:
+            flash('Debe seleccionar una hora válida.', 'warning')
+            return redirect(url_for('cliente.reagendar_hora', token=token))
+
+        cita_existente = db.session.query(models.Cita).filter_by(fecha=fecha, hora=nueva_hora).first()
+        if cita_existente and cita_existente.id != cita.id:
+            flash('🚫 Esa hora ya está ocupada.', 'danger')
+            return redirect(url_for('cliente.reagendar_hora', token=token))
+
+        session['nueva_hora'] = nueva_hora
+        return redirect(url_for('cliente.reagendar_confirmar', token=token))
+
+    citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha).all()
+    horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_existentes]
+
+    bloqueos = db.session.query(HoraRestringida.hora).filter(
+        HoraRestringida.fecha == fecha
+    ).all()
+    horas_bloqueadas = [h.hora.strftime('%H:%M') for h in bloqueos]
+
+    todas_las_horas = [
+        '07:00', '07:45', '08:30', '09:45', '10:30', '11:15',
+        '12:45', '13:30', '14:15', '15:45', '16:30', '17:15',
+        '18:00', '18:45'
+    ]
+
+    horas_disponibles = [
+        h for h in todas_las_horas
+        if h not in horas_ocupadas and h not in horas_bloqueadas
+    ]
+
+    ahora = datetime.now()
+    fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+    if fecha_dt.date() == ahora.date():
+        horas_disponibles = [
+            h for h in horas_disponibles
+            if datetime.strptime(f"{fecha} {h}", "%Y-%m-%d %H:%M") > ahora
+        ]
+
+    fecha_legible = fecha_dt.strftime("%#d de %B de %Y").capitalize()
+    nombre_dia = fecha_dt.strftime("%A")
+    hora_agendada_anterior = cita.hora.strftime('%H:%M')
+
+    return render_template(
+        'cliente/reagendar_hora.html',
+        cita=cita,
+        fecha=fecha,
+        fecha_legible=fecha_legible,
+        horas_disponibles=horas_disponibles,
+        nombre_dia=nombre_dia,
+        hora_agendada_anterior=hora_agendada_anterior,
+    )
 @cliente_blueprint.route('/reagendar/<token>/confirmar', methods=['GET', 'POST'])
 def reagendar_confirmar(token):
     from app import db, models
     cita_id = desencriptar_id(token)
-    tz = ZoneInfo("America/Bogota")
-    ahora = datetime.now(tz)
-
     if not cita_id:
         flash('Token inválido o expirado.', 'danger')
         return redirect(url_for('cliente.calendario_view'))
-
     cita = db.session.query(models.Cita).get_or_404(cita_id)
+
     fecha = session.get('nueva_fecha')
     hora = session.get('nueva_hora')
+    cita.estado = "activa"
 
-    # Si falta fecha u hora, volver al paso de selección
     if not fecha or not hora:
         return redirect(url_for('cliente.reagendar_fecha', token=token))
 
-    # POST → Guardar y enviar correo
     if request.method == 'POST':
-
-        nueva_fecha_hora = datetime.strptime(
-            f"{fecha} {hora}", "%Y-%m-%d %H:%M"
-        ).replace(tzinfo=tz)
+        nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
+        ahora = datetime.now()
 
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
             return redirect(url_for('cliente.reagendar_hora', token=token))
 
-        # GUARDAR CAMBIOS
-        cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
-        cita.hora = datetime.strptime(hora, '%H:%M').time()
-        cita.estado = "activa"
-        db.session.commit()
+    cita.fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+    cita.hora = datetime.strptime(hora, '%H:%M').time()
+    db.session.commit()
 
-        print(f"[OK] Cita {cita.id} REAGENDADA: {cita.fecha} {cita.hora}")
+    enviar_correo_con_invitacion(
+        id_cita=cita.id,
+        destinatario=cita.correo_electronico,
+        nombre=cita.nombre,
+        fecha=str(cita.fecha),
+        hora=str(cita.hora),
+        tipo='reagendada'
+    )
 
-        # ENVIAR CORREO
-        enviar_correo_con_invitacion(
-            id_cita=cita.id,
-            destinatario=cita.correo_electronico,
-            nombre=cita.nombre,
-            fecha=fecha,
-            hora=hora,
-            tipo='reagendada'
-        )
+    session.pop('nueva_fecha', None)
+    session.pop('nueva_hora', None)
 
-        # limpiar sesión
-        session.pop('nueva_fecha', None)
-        session.pop('nueva_hora', None)
-
-        return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
-
-    # GET → mostrar vista previa
-    fecha_legible = formatear_fecha(cita.fecha)
-    return render_template('cliente/confirmacion_reagendada.html', cita=cita, fecha_legible=fecha_legible)
+    flash('✅ Cita reagendada exitosamente.', 'success')
+    return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
 
 # -----------------------------------------------------------
 # 🔹 CONFIRMACIÓN FINAL
