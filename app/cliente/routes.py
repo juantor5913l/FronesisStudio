@@ -455,7 +455,7 @@ def reagendar_confirmar(token):
         session.pop('nueva_hora', None)
         
         return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
-    
+    fecha_legible = formatear_fecha(cita.fecha)
     return render_template('cliente/confirmacion_reagendada.html', cita=cita,fecha_legible=fecha_legible)
 
 
