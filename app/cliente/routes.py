@@ -426,11 +426,17 @@ def reagendar_confirmar(token):
     fecha = session.get('nueva_fecha')
     hora = session.get('nueva_hora')
 
+    # SI FALTA FECHA O HORA, QUE REGRESE AL PASO 1
     if not fecha or not hora:
         return redirect(url_for('cliente.reagendar_fecha', token=token))
 
+    # -----------------------------
+    # POST → Guardar y enviar correo
+    # -----------------------------
     if request.method == 'POST':
-        nueva_fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M").replace(tzinfo=tz)
+        nueva_fecha_hora = datetime.strptime(
+            f"{fecha} {hora}", "%Y-%m-%d %H:%M"
+        ).replace(tzinfo=tz)
 
         if nueva_fecha_hora <= ahora + timedelta(hours=3):
             flash('⚠️ Solo puedes reagendar con al menos 3 horas de anticipación.', 'warning')
@@ -442,16 +448,13 @@ def reagendar_confirmar(token):
         cita.estado = "activa"
         db.session.commit()
 
-        # FORMATEAR FECHA Y HORA CORRECTAMENTE
-        fecha_formateada = formatear_fecha(cita.fecha)
-        hora_formateada = cita.hora.strftime("%I:%M %p")
-
+        # ENVIAR CORREO
         enviar_correo_con_invitacion(
             id_cita=cita.id,
             destinatario=cita.correo_electronico,
             nombre=cita.nombre,
-            fecha=fecha_formateada,   # ← FORMATO CORRECTO
-            hora=hora_formateada,     # ← FORMATO CORRECTO
+            fecha=formatear_fecha(cita.fecha),
+            hora=cita.hora.strftime("%I:%M %p"),
             tipo='reagendada'
         )
 
@@ -460,9 +463,16 @@ def reagendar_confirmar(token):
 
         return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
 
+    # -----------------------------
+    # GET → Mostrar pantalla previa
+    # -----------------------------
+    fecha_legible = formatear_fecha(cita.fecha)
 
-
-
+    return render_template(
+        'cliente/confirmacion_reagendada.html',
+        cita=cita,
+        fecha_legible=fecha_legible
+    )
 
 # -----------------------------------------------------------
 # 🔹 CONFIRMACIÓN FINAL
