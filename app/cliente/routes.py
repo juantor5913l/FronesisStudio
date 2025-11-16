@@ -30,12 +30,11 @@ DIAS_ES = {
 }
 
 def formatear_fecha(fecha_dt):
-    dia_semana = DIAS_ES[fecha_dt.weekday()]    
-    dia = fecha_dt.day                            
-    mes = MESES_ES[fecha_dt.month]               
-    año = fecha_dt.year                           
-    
-    return f"{dia_semana}, {dia} de {mes} de {año}"
+    dia = fecha_dt.day
+    mes = MESES_ES[fecha_dt.month]
+    año = fecha_dt.year
+    return f"{dia} de {mes} de {año}"
+
 def nombre_dia_func(fecha_dt):
     return DIAS_ES[fecha_dt.strftime("%A")]
 
@@ -455,10 +454,9 @@ def reagendar_confirmar(token):
         session.pop('nueva_fecha', None)
         session.pop('nueva_hora', None)
         fecha_legible = formatear_fecha(cita.fecha)
-
         return redirect(url_for('cliente.confirmacion_reagendada', token=encriptar_id(cita.id)))
 
-    return render_template('cliente/confirmacion_reagendada.html', cita=cita, fecha_legible=fecha_legible)
+    return render_template('cliente/confirmacion_reagendada.html', cita=cita,fecha_legible=fecha_legible)
 
 
 # -----------------------------------------------------------
