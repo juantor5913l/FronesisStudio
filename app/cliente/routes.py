@@ -110,6 +110,7 @@ def seleccionar_hora():
     from app.models import HoraRestringida
     tz = pytz.timezone("America/Bogota")
     ahora = datetime.now(tz)
+    print("Fechaaaaaaaaaaaaaaaaaaa seleccionada:", ahora)
     if request.method == 'POST':
         hora = request.form.get('hora')
         if not hora:
@@ -134,7 +135,7 @@ def seleccionar_hora():
     fecha_str = session.get('fecha_cita')
     if not fecha_str:
         return redirect(url_for('cliente.calendario_view'))
-
+    
     fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
     citas_existentes = db.session.query(models.Cita).filter_by(fecha=fecha).all()
     horas_ocupadas = [c.hora.strftime('%H:%M') for c in citas_existentes]
