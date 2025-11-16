@@ -447,17 +447,14 @@ def reagendar_confirmar(token):
         cita.hora = datetime.strptime(hora, '%H:%M').time()
         cita.estado = "activa"
         db.session.commit()
-
-        # ENVIAR CORREO
         enviar_correo_con_invitacion(
-            cita.correo_electronico,      
-            cita.nombre,                  
-            fecha,                        
-            hora,                        
-            "reagendada",                 
-            cita.id                      
+            id_cita=cita_id,
+            destinatario=destinatario,
+            nombre=nombre,
+            fecha=fecha,
+            hora=hora,
+            tipo='reagendada'
         )
-
         
         session.pop('nueva_fecha', None)
         session.pop('nueva_hora', None)
