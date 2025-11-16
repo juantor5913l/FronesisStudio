@@ -450,14 +450,15 @@ def reagendar_confirmar(token):
 
         # ENVIAR CORREO
         enviar_correo_con_invitacion(
-            id_cita=cita.id,
-            destinatario=cita.correo_electronico,
-            nombre=cita.nombre,
-            fecha=formatear_fecha(cita.fecha),
-            hora=cita.hora.strftime("%I:%M %p"),
-            tipo='reagendada'
+            cita.correo_electronico,      
+            cita.nombre,                  
+            fecha,                        
+            hora,                        
+            "reagendada",                 
+            cita.id                      
         )
 
+        
         session.pop('nueva_fecha', None)
         session.pop('nueva_hora', None)
 
@@ -564,6 +565,7 @@ def confirmacion_cancelar(token):
             hora=hora,
             tipo='cancelada'
         )
+        
 
     except Exception as e:
         db.session.rollback()
