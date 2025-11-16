@@ -65,7 +65,7 @@ def enviar_por_resend(destinatario, asunto, html_body):
 
     try:
         r = requests.post(url, json=payload, headers=headers, timeout=15)
-        print("📨 Resend status:", r.status|_code)
+        print("📨 Resend status:", r.status_code)  # ← CORRECCIÓN AQUÍ
 
         if r.status_code >= 400:
             print("❌ Error al enviar correo:", r.text)
@@ -121,43 +121,40 @@ def enviar_correo_con_invitacion(destinatario, nombre, fecha, hora, tipo, id_cit
 
         base_url = "https://www.fronesisstudio.fun"
 
-        # --- BOTONES OPTIMIZADOS PARA IPHONE Y OUTLOOK ---
+        # --- BOTONES ---
         enlaces_html = ""
         if tipo not in ["cancelada", "cancelada_admin"]:
             token = encriptar_id(id_cita)
             enlaces_html = f"""
             <table role="presentation" width="100%" style="margin-top:20px;">
-  <tr>
-    <!-- BOTÓN REAGENDAR -->
-    <td align="center" width="50%" style="padding-right:5px;">
-      <a href="{base_url}/cliente/reagendar/{token}"
-        style="display:block; background:{gradiente}; padding:1px; border-radius:8px; text-decoration:none;">
-        <table role="presentation" width="100%">
-          <tr>
-            <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
-              <span style="color:#fff; font-weight:700; font-size:14px;">🔁 Reagendar</span>
-            </td>
-          </tr>
-        </table>
-      </a>
-    </td>
+              <tr>
+                <td align="center" width="50%" style="padding-right:5px;">
+                  <a href="{base_url}/cliente/reagendar/{token}"
+                    style="display:block; background:{gradiente}; padding:1px; border-radius:8px; text-decoration:none;">
+                    <table role="presentation" width="100%">
+                      <tr>
+                        <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
+                          <span style="color:#fff; font-weight:700; font-size:14px;">🔁 Reagendar</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </a>
+                </td>
 
-    <!-- BOTÓN CANCELAR -->
-    <td align="center" width="50%" style="padding-left:5px;">
-      <a href="{base_url}/cliente/cancelar_cita/{token}"
-        style="display:block; background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b); padding:1px; border-radius:8px; text-decoration:none;">
-        <table role="presentation" width="100%">
-          <tr>
-            <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
-              <span style="color:#fff; font-weight:700; font-size:14px;">🚫 Cancelar</span>
-            </td>
-          </tr>
-        </table>
-      </a>
-    </td>
-  </tr>
-</table>
-
+                <td align="center" width="50%" style="padding-left:5px;">
+                  <a href="{base_url}/cliente/cancelar_cita/{token}"
+                    style="display:block; background:linear-gradient(90deg,#ff4b2b,#c0392b,#ff6b6b); padding:1px; border-radius:8px; text-decoration:none;">
+                    <table role="presentation" width="100%">
+                      <tr>
+                        <td align="center" style="background:#000; padding:9px 0; border-radius:8px;">
+                          <span style="color:#fff; font-weight:700; font-size:14px;">🚫 Cancelar</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </a>
+                </td>
+              </tr>
+            </table>
             """
 
         # --- HTML FINAL ---
