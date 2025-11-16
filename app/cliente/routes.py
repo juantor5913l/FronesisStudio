@@ -8,6 +8,7 @@ from app.config import Config
 from app.utils.email_utils import enviar_correo_con_invitacion
 from app.utils.security_utils import encriptar_id, desencriptar_id
 from flask import current_app
+from zoneinfo import ZoneInfo
 
 # -----------------------------------------------------------
 # 🔹 FUNCIONES PARA FORMATEAR FECHAS EN ESPAÑOL
@@ -65,7 +66,8 @@ def seleccionar_fecha():
         return redirect(url_for('cliente.calendario_view'))
 
     fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-    hoy = datetime.now().date()
+    ahora = datetime.now(ZoneInfo("America/Bogota"))
+    hoy= ahora.date()
     limite = hoy + timedelta(days=30)
 
     if fecha < hoy:
@@ -108,8 +110,7 @@ def horas_disponibles():
 def seleccionar_hora():
     from app import db, models
     from app.models import HoraRestringida
-    tz = pytz.timezone("America/Bogota")
-    ahora = datetime.now(tz)
+    ahora = datetime.now(ZoneInfo("America/Bogota"))
     print("Fechaaaaaaaaaaaaaaaaaaa seleccionada:", ahora)
     if request.method == 'POST':
         hora = request.form.get('hora')
@@ -123,7 +124,8 @@ def seleccionar_hora():
 
         fecha_cita = datetime.strptime(fecha_str, "%Y-%m-%d").date()
         hora_cita = datetime.strptime(hora, "%H:%M").time()
-        ahora = datetime.now(tz)
+        ahora = datetime.now(ZoneInfo("America/Bogota"))
+
 
         if fecha_cita == ahora.date() and hora_cita <= ahora.time():
             flash('No puedes agendar una hora que ya ha pasado.')
@@ -152,7 +154,8 @@ def seleccionar_hora():
 
     horas_disponibles = [h for h in todas_las_horas if h not in horas_ocupadas and h not in horas_bloqueadas]
 
-    ahora = datetime.now(tz)
+    ahora = datetime.now(ZoneInfo("America/Bogota"))
+
     if fecha == ahora.date():
         horas_disponibles = [h for h in horas_disponibles if datetime.strptime(h, "%H:%M").time() > ahora.time()]
 
